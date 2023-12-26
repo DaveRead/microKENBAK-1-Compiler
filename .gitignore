@@ -1,0 +1,15 @@
+.settings/
+.ant-targets-build.xml
+*.log
+bin/
+classes/
+dist/
+logs/
+test-bin/
+generated/
+.classpath
+.project
+DS_Store
+.DS_Store
+*.ops
+

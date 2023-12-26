@@ -1,0 +1,36 @@
+# Program to display random values on the microKenbak-1 LEDs
+label top
+
+# Generate a random number in b
+let a = 021
+syscall
+
+# Set white LEDs to random value 
+memcopy b to display
+
+# Generate another random number
+syscall
+
+# Copy the random number to a and AND it with 17 octal (keep lower four bits)
+memcopy b to a
+and 017
+
+# Place the random value in b
+memcopy a to b
+
+# Set yellow LEDs based on random number
+let a = 0220
+syscall
+
+# Generate a random number in b
+let a = 021
+syscall
+
+# Delay program execution for random value in b * 2 milliseconds
+let a = 0222
+#let b = 0200
+syscall
+syscall
+
+# Repeat process
+goto top

@@ -1,0 +1,36 @@
+# Program to display counting from 0 to 255 and back to 0 on the microKenbak-1's white LEDs
+label top
+let b = 0
+
+# Counting up from 0 to 255
+label CountUpLoopTop
+add 1 to b
+memcopy b to display
+
+# Delay program by counting from 0 to 255
+let a = 0
+label DelayLoop1Top
+add 1 to a
+if a notzero goto DelayLoop1Top
+
+# Check if b has reached 255, if not, repeat counting up loop
+memcopy b to a
+add 1 to a
+if a notzero goto CountUpLoopTop
+
+# Counting down from 255 to 0
+label CountDownLoopTop
+subtract 1 from b
+memcopy b to display
+
+# Delay program by counting from 0 to 255
+let a = 0
+label DelayLoop2Top
+add 1 to a
+if a notzero goto DelayLoop2Top
+
+# Check if b has reached 0, if not, repeat counting down loop
+if b notzero goto CountDownLoopTop
+
+# Go back to counting up loop
+goto CountUpLoopTop

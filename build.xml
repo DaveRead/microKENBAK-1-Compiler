@@ -1,0 +1,290 @@
+<!--
+	microKenbak-1 Compiler Ant build script
+-->
+<project name="MicroKenbak1Compiler" default="dist"
+		xmlns:jacoco="antlib:org.jacoco.ant">
+
+	<!-- specify properties in build.properties -->
+	<property file="build.properties" />
+
+	<!-- main build classpath -->
+	<path id="build.class.path">
+		<fileset dir="${rootLibDir}/${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- runtime build classpath -->
+	<path id="runtime.class.path">
+		<fileset dir="${rootLibDir}/${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- test build classpath -->
+	<path id="test.class.path">
+		<fileset dir="${rootLibDir}/${testLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${rootLibDir}/${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- code generation buildpath -->
+	<path id="gen.class.path">
+		<fileset dir="${genLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${rootLibDir}/${mainLibDir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!-- Checkstyle task definition -->
+	<taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+	         classpath="${rootLibDir}/${testLibDir}/${checkstyleJarFile}"/>
+
+	<!-- JaCoCo task definition -->
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+                <classpath path="${rootLibDir}/${testLibDir}/${jacocoJarFile}"/>
+        </taskdef>
+
+	<!-- Make project JAR file -->
+	<target name="dist" depends="compile">
+		<!-- Clean-out prior release JAR file(s) -->
+		<delete dir="${distDir}" quiet="true" />
+		<mkdir dir="${distDir}" />
+
+		<jar destfile="${distDir}/${jarFile}">
+			<fileset dir="${mainBuildDir}"/>
+			<manifest>
+				<attribute name="Main-Class" value="${mainJavaClass}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- Clean out previously built project files and javadoc -->
+	<target name="clean">
+
+		<!-- remove packaged final JAR directory -->
+		<delete dir="${distDir}" quiet="true" />
+
+		<!-- remove compiled production code directory -->
+		<delete dir="${mainBuildDir}" includeemptydirs="true" quiet="true" />
+
+		<!-- remove JavaDoc directory -->
+		<mkdir dir="${genJavadocDir}" />
+
+		<!-- remove generated files directory -->
+		<delete dir="${genDir}" quiet="true" />
+
+		<!-- remove compiled tests directory -->
+		<delete dir="${testBuildDir}" quiet="true" />
+	</target>
+
+	<!-- Setup Steps Required Before Compilation -->
+	<target name="init">
+
+		<!-- creates the folder to contain the compiled unit test Java source -->
+		<mkdir dir="${testBuildDir}" />
+
+		<!-- creates the folder to contain the compiled Java source -->
+		<mkdir dir="${mainBuildDir}" />
+
+		<!-- creates generated Java source directory -->
+		<mkdir dir="${genMainJavaSrcDir}" />
+
+		<!-- creates Checkstyle report directory -->
+		<mkdir dir="${genCheckstyleReportsDir}" />
+	</target>
+
+	<!-- compiles Java source -->
+	<target name="compile" depends="init">
+		<javac destdir="${mainBuildDir}" deprecation="yes" debug="yes">
+			<src path="${mainJavaSrcDir}" />
+			<classpath refid="build.class.path" />
+		</javac>
+		<copy todir="${mainBuildDir}">
+  			<fileset dir="${mainConfigDir}">
+			    <include name="**/*"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- clean out generated source code -->
+	<target name="clean-gen-src">
+		<delete dir="${genSrcDir}" quiet="true" />
+	</target>
+
+	<!-- compiles test Java source -->
+	<target name="test-compile" depends="compile">
+		<javac destdir="${testBuildDir}" deprecation="yes" debug="yes">
+			<src path="${testJavaSrcDir}" />
+			<classpath refid="test.class.path" />
+			<classpath>
+				<pathelement location="${mainBuildDir}" />
+			</classpath>
+		</javac>
+<!--		<copydir dest="${testBuildDir}" src="${testConfigSrcDir}" /> -->
+		<copy todir="${testBuildDir}">
+  			<fileset dir="${testConfigDir}">
+			    <include name="**/*"/>
+			</fileset>
+		</copy>
+
+	</target>
+
+	<!-- Make the JavaDoc -->
+	<target name="javadoc" depends="init">
+		<!-- Clean-out the JavaDoc directory -->
+		<delete dir="${genJavadocDir}" quiet="true" />
+		<mkdir dir="${genJavadocDir}" />
+
+		<javadoc sourcepath="${mainJavaSrcDir}" packagenames="${javadocPackageNames}" destdir="${genJavadocDir}" Private="yes" >
+			<classpath refid="build.class.path" />
+		</javadoc>
+	</target>
+
+	<!-- Unit test the codebase - with coverage -->
+	<target name="test" depends="test-compile">
+		<!-- Clean-out all unit test and coverage directories -->
+
+		<!-- delete JUnit XML output directory -->
+		<delete dir="${genRawUnitTestReportsDir}" quiet="true" />
+
+		<!-- create JUnit XML output directory -->
+		<mkdir dir="${genRawUnitTestReportsDir}" />
+
+		<!-- delete JUnit HTML output directory -->
+		<delete dir="${genFormattedUnitTestReportsDir}" quiet="true" />
+
+		<!-- create JUnit HTML output directory -->
+		<mkdir dir="${genFormattedUnitTestReportsDir}" />
+
+		<!-- delete JaCoCo data directory -->
+		<delete dir="${genJaCoCoDataFileDir}" quiet="true" />
+
+		<!-- create JaCoCo data directory -->
+		<mkdir dir="${genJaCoCoDataFileDir}" />
+
+		<!-- delete JaCoCo HTML reports directory -->
+		<delete dir="${genJaCoCoReportsDir}" quiet="true" />
+
+		<!-- create JaCoCo HTML reports directory -->
+		<mkdir dir="${genJaCoCoReportsDir}" />
+
+		<!-- Run all JUnit tests using JaCoCo coverage -->
+
+		<jacoco:coverage destfile="${genJaCoCoDataFileDir}/${jacocoDataFileName}">
+			<junit printsummary="yes" haltonfailure="no"
+				failureproperty="tests.failed"
+				fork="yes" maxmemory="512m">
+
+				<jvmarg line="-Dlog4j.debug"/>
+
+				<!-- define the classpath for JUnit to use -->
+				<classpath>
+					<!-- put JUnit test cases onto the classpath -->
+					<pathelement location="${testBuildDir}" />
+
+					<!-- put production classes onto the classpath -->
+					<pathelement location="${mainBuildDir}" />
+
+					<!-- put dependent jar files into the classpath -->
+					<path refid="test.class.path" />
+				</classpath>
+
+				<!-- Use JUnit's xml formatter -->
+				<formatter type="xml" />
+
+				<!-- execute the tests -->
+				<batchtest fork="yes"
+					todir="${genRawUnitTestReportsDir}">
+					<fileset dir="${testBuildDir}">
+						<include name="**/*Test.class" />
+						<exclude name="**/*$*.class" />
+					</fileset>
+				</batchtest>
+			</junit>
+		</jacoco:coverage>
+
+		<!-- Create the HTML-formatted unit test report -->
+		<junitreport todir="${genFormattedUnitTestReportsDir}">
+			<fileset dir="${genRawUnitTestReportsDir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${genFormattedUnitTestReportsDir}" />
+		</junitreport>
+
+		<!-- create the HTML-formatted coverage report -->
+		<jacoco:report>
+        		<executiondata>
+				<file file="${genJaCoCoDataFileDir}/${jacocoDataFileName}"/>
+			</executiondata>
+
+			<structure name="${jacocoReportTitle}">
+				<classfiles>
+					<fileset dir="${mainBuildDir}"/>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${mainJavaSrcDir}"/>
+				</sourcefiles>
+			</structure>
+			<html destdir="${genJaCoCoReportsDir}"/>
+		</jacoco:report>
+
+		<!-- Print an alert if one or more tests failed -->
+		<fail if="tests.failed">
+			Failed: ${tests.failed}
+			****************************************************
+			****************************************************
+			**** One or more tests failed! Check the output ****
+			****************************************************
+			****************************************************
+		</fail>
+	</target>
+
+	<!-- Generate a checkstyle report -->
+	<target name="checkstyle-report" depends="init">
+		<checkstyle config="${checkstyleConfigFile}" failureProperty="checks.failed" maxWarnings="0" failOnViolation="false">
+  			<fileset dir="${mainJavaSrcDir}" includes="**/*.java"/>
+  			<fileset dir="${testJavaSrcDir}" includes="**/*.java"/>
+  			<formatter type="plain"/>
+  			<formatter type="plain" toFile="${genCheckstyleReportsDir}/${checkstyleTextReportFile}"/>
+  			<formatter type="xml" toFile="${genCheckstyleReportsDir}/${checkstyleXmlReportFile}"/>
+				<property key="checkstyle.suppressions.file" file="${checkstyleSuppressionsConfigFile}"/>
+		</checkstyle>
+
+		<!-- print alert if one or more tests failed -->
+
+		<fail if="checks.failed">
+			Failed: ${checks.failed}
+			*****************************************************
+			*****************************************************
+			**** One or more checks failed! Check the output ****
+			*****************************************************
+			*****************************************************
+		</fail>
+	</target>
+
+	<target name="run" depends="dist">
+		<java classname="${mainJavaClass}" fork="true">
+			<classpath refid="runtime.class.path" />
+			<classpath path="${distDir}/${jarFile}"/>
+			<arg value="${input}"/>
+			<arg value="${output}"/>
+		</java>
+	</target>
+    <!-- runs the program using the program's generated JAR -->
+
+    <target name="run-jar" depends="dist">
+        <java classname="${mainJavaClass}" fork="true">
+            <classpath refid="runtime.class.path"/>
+            <classpath>
+                <pathelement location="${distDir}/${jarFile}"/>
+            </classpath>
+        </java>
+    </target>
+
+</project>
