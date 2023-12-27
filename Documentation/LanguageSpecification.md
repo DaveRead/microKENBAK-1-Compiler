@@ -12,7 +12,7 @@ Keywords are not case sensitive. LABEL, label, and Label as equivalent.
 
 The complete list of keywords are:
 
-`ADD, FROM, GOTO, IF, ISZERO, LABEL, LET, NOTZERO, SUBTRACT, SYSCALL, TO`
+`ADD, FROM, GOTO, HALT, IF, ISZERO, LABEL, LET, NOTZERO, SUBTRACT, SYSCALL, TO`
 
 ##Variables
 
@@ -20,7 +20,7 @@ The first three bytes of memory serve as registers for operations and are referr
 
 ##Convenience Mnemonic Names
 
-Two convenience names are used. These may be used with the `LET` and `MEMCOPY` statements.
+Two convenience names are defined. These may be used with the `MEMCOPY` statement.
 
 `DISPLAY` represents the memory location (0200) for setting the LEDs
 
@@ -42,7 +42,7 @@ The `LET` statement is used for assignment. The form is:
 
 `LET` *variable_name* `=` *value*
 
-The *variable_name* must be one of: `A, B, X, DISPLAY, INPUT`
+The *variable_name* must be one of: `A, B, X`
 
 The *value* must be an octal value in the range of 0 to 0377
 
@@ -88,7 +88,7 @@ The `IF` statement is used for conditional jumps. The form is:
 
 `IF` *variable_name* *test_type* `GOTO` *label_name*
 
-The *variable_name* must be one of `A, B, X, DISPLAY, INPUT` 
+The *variable_name* must be one of `A, B, X` 
 
 The *test_type* must be one of `ISZERO` or `NOTZERO`
 
@@ -102,11 +102,13 @@ The *label_name* must be defined elsewhere in the program using a `LABEL` statem
 
 ##Copy Memory Byte Values
 
-The `MEMCOPY` statement is used to copy a value from one memory location to another. The form is:
+The `MEMCOPY` statement is used to copy a variable's value to a memory location. The form is:
 
-`MEMCOPY` *source* `TO` *destination*
+`MEMCOPY` *variable_name* `TO` *destination*
 
-The *source* and *destination* must be octal addresses or a variable names
+The *variable_name* must be one of `A, B, X` 
+
+The *destination* must be an octal address, a variable name, or a mnemonic location name 
 
 ###Examples
 
@@ -114,7 +116,7 @@ The *source* and *destination* must be octal addresses or a variable names
 
 `memcopy a to display`
 
-`memcopy 0377 to b`
+`memcopy b to a`
 
 `memcopy x to 0200`
 
@@ -136,7 +138,7 @@ The *variable_name* must be one of `A, B, X`
 
 ##Subtraction
 
-The `SUBTRACT` statement is used to subtrat a value form a variable. The form is:
+The `SUBTRACT` statement is used to subtract a value form a variable. The form is:
 
 `SUBTRACT` *value* `FROM` *variable_name*
 
@@ -197,4 +199,10 @@ The `SYSCALL` statement is used to invoke a system call. This sends an instructi
 `let b = 0377`
 
 `syscall`
+
+##Halt program
+
+The `HALT` statement is used to stop the program's execution. This sends the instruction value of 0000. The form is:
+
+`HALT`
 

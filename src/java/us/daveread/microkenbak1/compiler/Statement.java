@@ -66,6 +66,9 @@ public class Statement {
       case "IF":
         handleIf(lexemes);
         break;
+      case "HALT":
+        handleHalt();
+        break;
       default:
         throw new IllegalStateException("Undefined keyword: " + lexemes[0]);
     }
@@ -153,7 +156,7 @@ public class Statement {
   }
 
   /**
-   * Generate OpCodes for a copying a byte between memory locations.
+   * Generate OpCodes for a copying a variable's value to a memory location.
    * 
    * @param lexemes
    *          The lexemes making up one statement
@@ -161,7 +164,7 @@ public class Statement {
   public void handleMemCopy(String[] lexemes) {
     if (lexemes.length != 4 || !lexemes[2].equalsIgnoreCase("to")) {
       throw new IllegalStateException(
-          "MEMCOPY requires variable, TO, and value");
+          "MEMCOPY requires variable, TO, and memory_location");
     }
 
     lexemes[3] = translateMemLocationName(lexemes[3]);
@@ -359,6 +362,13 @@ public class Statement {
 
     JumpInstruction jump = new JumpInstruction(jumpType, lexemes[4]);
     add(jump);
+  }
+
+  /**
+   * Generate OpCodes for a halt.
+   */
+  public void handleHalt() {
+    add(new OperationInstruction(0000));
   }
 
   /**
