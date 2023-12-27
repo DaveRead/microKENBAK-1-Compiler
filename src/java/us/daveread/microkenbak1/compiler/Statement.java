@@ -53,7 +53,8 @@ public class Statement {
       case "MEMCOPY":
         handleMemCopy(lexemes);
         break;
-      case "AND":
+      case "AND": // fall through to OR
+      case "OR":
         handleLogical(lexemes);
         break;
       case "ADD":
