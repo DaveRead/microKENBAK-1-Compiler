@@ -1,4 +1,4 @@
-# Program to display random values on the microKenbak-1 LEDs
+# Program to display random values on the microKENBAK-1 LEDs
 label top
 
 # Generate a random number in b
