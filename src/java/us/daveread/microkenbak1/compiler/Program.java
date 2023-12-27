@@ -112,6 +112,14 @@ public class Program {
 
         if (inst instanceof Label) {
           Label label = (Label) inst;
+
+          // Detect duplicate label name
+          if (labelCache.get(label.getName()) != null) {
+            throw new IllegalStateException(
+                "A label may only be defined once in a program. The label name "
+                    + label.getName() + " is repeated");
+          }
+
           labelCache.put(label.getName(), label);
         }
 
@@ -132,6 +140,21 @@ public class Program {
                 "Label " + labelName + " is not defined");
           }
           jump.setDestinationAddress(target.getMemoryLocation());
+          target.setUsed(true);
+        }
+      }
+    }
+
+    // Check for unused labels - generate warning messages
+    for (Statement stmt : statements) {
+      OpCodes[] insts = stmt.getOpCodes();
+      for (OpCodes inst : insts) {
+        if (inst instanceof Label) {
+          Label label = (Label) inst;
+          if (!label.isUsed()) {
+            System.out.println(
+                "WARNING: Label " + label.getName() + " is never used");
+          }
         }
       }
     }
