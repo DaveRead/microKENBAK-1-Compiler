@@ -6,13 +6,27 @@ KBlang provides a higher-level language for the microKENBAK-1's operating codes 
 
 Statements may not be split across lines. Blank lines are ignored.
 
+## Numeric Literals
+
+Numbers may be expressed in decimal, octal, or hexadecimal. A number without a leading 0 is interpreted as decimal, a number beginning with a leading 0 is interpreted as octal, and numbers beginning with 0x are interpreted as hexadecimal.
+
+The most of the examples in this guide use octal values to align with the original KENBAK-1 programming guide which generally used octal numbers. However, KBlang allows equivalent decimal and hexadecimal numbers to be used anywhere an integer is expected.
+
+### Examples
+
+Decimal values: 8, 15, 16, 127, 128, 255
+
+Octal values: 010, 017, 020, 0177, 0200, 0377
+
+Hexadecimal values: 0x8, 0xF, 0x10, 0x7F, 0x80, 0xFF
+
 ##Keywords
 
 Keywords are not case sensitive. LABEL, label, and Label as equivalent.
 
 The complete list of keywords are:
 
-`ADD, FROM, GOTO, HALT, IF, ISZERO, LABEL, LET, NOTZERO, SUBTRACT, SYSCALL, TO`
+`ADD, ADDRESSIN, FROM, GOTO, HALT, IF, ISZERO, LABEL, LET, NOTZERO, SUBTRACT, SYSCALL, TO`
 
 ##Variables
 
@@ -20,11 +34,13 @@ The first three bytes of memory serve as registers for operations and are referr
 
 ##Convenience Mnemonic Names
 
-Two convenience names are defined. These may be used with the `MEMCOPY` statement.
+Three convenience names are defined. These may be used with the `MEMCOPY` statement.
 
 `DISPLAY` represents the memory location (0200) for setting the LEDs
 
 `INPUT` represents the memory location (0377) for reading the button input value
+
+`P` represents the program instruction counter (03)
 
 ##Comments
 
@@ -102,23 +118,34 @@ The *label_name* must be defined elsewhere in the program using a `LABEL` statem
 
 ##Copy Memory Byte Values
 
-The `MEMCOPY` statement is used to copy a variable's value to a memory location. The form is:
+The `MEMCOPY` statement is used to copy a variable's value to a memory location. There are two forms, depending on how the destination value is interpreted. The forms are:
 
 `MEMCOPY` *variable_name* `TO` *destination*
+
+or
+
+`MEMCOPY` *variable_name* `TO` `ADDRESSIN` *destination*
 
 The *variable_name* must be one of `A, B, X` 
 
 The *destination* must be an octal address, a variable name, or a mnemonic location name 
 
+In the first form, the address to be written is supplied directly. In the second form, the address to be written is contained within the supplied address.
+
+
 ###Examples
 
-`MEMCOPY A TO B`
-
-`memcopy a to display`
-
-`memcopy b to a`
-
+`MEMCOPY A TO B`  
+`memcopy a to display`  
+`memcopy b to a`  
 `memcopy x to 0200`
+
+---
+`# circuitous way to set LEDs to 0252, demonstrating ADDRESSIN`  
+`let a = 128 # Demonstrating use of decimal (octal 0200)`  
+`let b = 0xAA  # Demonstrating use of hexadecimal (octal 252)`  
+`memcopy b to addressin a`
+---
 
 ##Addition
 
