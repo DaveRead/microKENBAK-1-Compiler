@@ -6,14 +6,14 @@ For example, here is a program, found as **samples/CountUp.kb1**,  to have the L
 
 ---
 `# Program to repeatedly count from 0 to 255, displaying each value on the LEDs`  
-  
+
 `# Set A and B for program delay syscall`  
 `let a = 0222`  
 `let b = 0200`  
-  
+
 `# Initialize X`  
 `let x = 0`  
-  
+
 `# Top of loop to display counting on LEDs`  
 `label top`  
 `add 1 to x`  
