@@ -13,7 +13,7 @@ let b = 0200
   
 \# Initialize X  
 let x = 0  
-    
+  
 \# Top of loop to display counting on LEDs  
 label top  
 add 1 to x  
