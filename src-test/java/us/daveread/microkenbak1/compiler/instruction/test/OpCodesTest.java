@@ -1,12 +1,12 @@
-package us.daveread.microkenbak1.compiler.test;
+package us.daveread.microkenbak1.compiler.instruction.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import us.daveread.microkenbak1.compiler.Label;
-import us.daveread.microkenbak1.compiler.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.Label;
+import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 
 /**
  * Unit tests for the OpCodes class.

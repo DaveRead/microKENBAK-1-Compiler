@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
+import us.daveread.microkenbak1.compiler.instruction.JumpType;
+import us.daveread.microkenbak1.compiler.instruction.Label;
+import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.OperationInstruction;
+
 /**
  * Statements represent programmatic steps Each statement is converted to one or
  * more OpCodes.
@@ -126,7 +132,7 @@ public class Statement {
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.parseInt(lexemes[3], 8));
+    inst = new OperationInstruction(Integer.decode(lexemes[3]));
     add(inst);
   }
 
@@ -162,15 +168,26 @@ public class Statement {
    *          The lexemes making up one statement
    */
   public void handleMemCopy(String[] lexemes) {
-    if (lexemes.length != 4 || !lexemes[2].equalsIgnoreCase("to")) {
+    boolean hasMemoryIndirection;
+    int memoryLocationIndex;
+
+    if (lexemes.length < 4 && !lexemes[2].equalsIgnoreCase("to")) {
       throw new IllegalStateException(
-          "MEMCOPY requires variable, TO, and memory_location");
+          "MEMCOPY requires variable, TO, optional ADDRESSIN, and memory_location");
+    } else if (lexemes.length == 5 && (!lexemes[2].equalsIgnoreCase("to")
+        || !lexemes[3].equalsIgnoreCase("addressin"))) {
+      throw new IllegalStateException(
+          "MEMCOPY requires variable, TO, optional ADDRESSIN, and memory_location");
+    } else {
+      memoryLocationIndex = lexemes.length - 1;
+      hasMemoryIndirection = lexemes.length == 5;
     }
 
-    lexemes[3] = translateMemLocationName(lexemes[3]);
+    lexemes[memoryLocationIndex] = translateMemLocationName(
+        lexemes[memoryLocationIndex]);
 
     verifyVariableName(lexemes[1]);
-    verifyByteValue(lexemes[3]);
+    verifyByteValue(lexemes[memoryLocationIndex]);
 
     int opCode;
 
@@ -189,10 +206,15 @@ public class Statement {
             "Undefined variable name for MEMCOPY: " + lexemes[1]);
     }
 
+    if (hasMemoryIndirection) {
+      opCode |= 1;
+    }
+
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.parseInt(lexemes[3], 8));
+    inst = new OperationInstruction(
+        Integer.decode(lexemes[memoryLocationIndex]));
     add(inst);
   }
 
@@ -225,7 +247,7 @@ public class Statement {
     }
 
     add(new OperationInstruction(opCode));
-    add(new OperationInstruction(Integer.parseInt(lexemes[1], 8)));
+    add(new OperationInstruction(Integer.decode(lexemes[1])));
   }
 
   /**
@@ -262,7 +284,7 @@ public class Statement {
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.parseInt(lexemes[1], 8));
+    inst = new OperationInstruction(Integer.decode(lexemes[1]));
     add(inst);
 
   }
@@ -302,7 +324,7 @@ public class Statement {
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.parseInt(lexemes[1], 8));
+    inst = new OperationInstruction(Integer.decode(lexemes[1]));
     add(inst);
   }
 
@@ -377,18 +399,20 @@ public class Statement {
    * @param value
    */
   public void verifyByteValue(String value) {
-    int fromOctal;
+    int intValue;
 
     try {
-      fromOctal = Integer.parseInt(value, 8);
+      intValue = Integer.decode(value);
     } catch (NumberFormatException nfe) {
       throw new IllegalStateException(
-          "Value must be an octal integer (found: " + value + ")", nfe);
+          "Value must be a decimal, octal (leading 0), or hexadecimal (leading 0x) integer (found: "
+              + value + ")",
+          nfe);
     }
 
-    if (fromOctal < 0 || fromOctal > 255) {
+    if (intValue < 0 || intValue > 255) {
       throw new IllegalStateException(
-          "Byte value must be in range 0-377 (octal)");
+          "Byte value must be in range 0-255 (decimal), 0-377 (octal), 0xFF (hexadecimal)");
     }
   }
 

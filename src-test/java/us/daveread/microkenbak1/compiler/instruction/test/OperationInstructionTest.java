@@ -1,11 +1,11 @@
-package us.daveread.microkenbak1.compiler.test;
+package us.daveread.microkenbak1.compiler.instruction.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import us.daveread.microkenbak1.compiler.OperationInstruction;
+import us.daveread.microkenbak1.compiler.instruction.OperationInstruction;
 
 /**
  * Unit tests for the OperationInstruction class.

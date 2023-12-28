@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import us.daveread.microkenbak1.compiler.Label;
-import us.daveread.microkenbak1.compiler.OpCodes;
 import us.daveread.microkenbak1.compiler.Statement;
+import us.daveread.microkenbak1.compiler.instruction.Label;
+import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 
 public class StatementLabelTest {
 

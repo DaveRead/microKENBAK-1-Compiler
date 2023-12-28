@@ -1,13 +1,14 @@
 package us.daveread.microkenbak1.compiler.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import us.daveread.microkenbak1.compiler.Label;
-import us.daveread.microkenbak1.compiler.OpCodes;
 import us.daveread.microkenbak1.compiler.Program;
 import us.daveread.microkenbak1.compiler.Statement;
+import us.daveread.microkenbak1.compiler.instruction.Label;
+import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 
 /**
  * Unit tests for the Program class.
@@ -58,7 +59,6 @@ public class ProgramTest {
   @Test
   public void testGetInstructionsNoEof() {
     Program prog = new Program();
-    prog.addStatement(new Statement("LABEL top".split(" ")));
     prog.addStatement(new Statement("LET A = 0105".split(" ")));
     prog.addStatement(new Statement("LET B = 01".split(" ")));
 
@@ -77,7 +77,6 @@ public class ProgramTest {
   @Test
   public void testGetInstructionsWithEof() {
     Program prog = new Program();
-    prog.addStatement(new Statement("LABEL begin".split(" ")));
     prog.addStatement(new Statement("LET B = 0217".split(" ")));
     prog.addStatement(new Statement("LET A = 0035".split(" ")));
     prog.addStatement(new Statement("LET X = 0177".split(" ")));
@@ -133,15 +132,81 @@ public class ProgramTest {
   }
 
   /**
-   * Test output of operating codes for SYSCALL.
+   * Test detection of missing jump label name.
+   */
+  @Test(expected=IllegalStateException.class)
+  public void testGetInstructionsMissingJumpLabelName() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET B = 0217".split(" ")));
+    prog.addStatement(new Statement("LET A = 0035".split(" ")));
+    prog.addStatement(new Statement("LET X = 0177".split(" ")));
+    prog.addStatement(new Statement("GOTO".split(" ")));
+
+    prog.getInstructions(false);
+
+    fail("Missing jump label not correctly identified");
+  }
+
+  /**
+   * Test detection of jump label name with spaces.
+   */
+  @Test(expected=IllegalStateException.class)
+  public void testGetInstructionsJumpLabelNameWithSpaces() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET B = 0217".split(" ")));
+    prog.addStatement(new Statement("LET A = 0035".split(" ")));
+    prog.addStatement(new Statement("LET X = 0177".split(" ")));
+    prog.addStatement(new Statement("GOTO Top_Of loop".split(" ")));
+
+    prog.getInstructions(false);
+
+    fail("Jump label with spaces not correctly identified");
+  }
+
+  /**
+   * Test detection of missing jump label.
+   */
+  @Test(expected=IllegalStateException.class)
+  public void testGetInstructionsMissingJumpTarget() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET B = 0217".split(" ")));
+    prog.addStatement(new Statement("LET A = 0035".split(" ")));
+    prog.addStatement(new Statement("LET X = 0177".split(" ")));
+    prog.addStatement(new Statement("GOTO begin".split(" ")));
+
+    prog.getInstructions(false);
+
+    fail("Missing jump target not correctly identified");
+  }
+
+  /**
+   * Test detection of duplicate jump label.
+   */
+  @Test(expected=IllegalStateException.class)
+  public void testGetInstructionsDuplicatedJumpTarget() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LABEL begin".split(" ")));
+    prog.addStatement(new Statement("LET B = 0217".split(" ")));
+    prog.addStatement(new Statement("LET A = 0035".split(" ")));
+    prog.addStatement(new Statement("LABEL begin".split(" ")));
+    prog.addStatement(new Statement("LET X = 0177".split(" ")));
+    prog.addStatement(new Statement("GOTO begin".split(" ")));
+
+    prog.getInstructions(false);
+
+    fail("Duplicated jump target not correctly identified");
+  }
+
+  /**
+   * Test output of operating codes for SYSCALL. Uses decimal values.
    */
   @Test
   public void testGetInstructionsForSysCall() {
     Program prog = new Program();
-    prog.addStatement(new Statement("LET A = 021".split(" ")));
+    prog.addStatement(new Statement("LET A = 17".split(" ")));
     prog.addStatement(new Statement("SYSCALL".split(" ")));
-    prog.addStatement(new Statement("LET A = 0220".split(" ")));
-    prog.addStatement(new Statement("LET B = 200".split(" ")));
+    prog.addStatement(new Statement("LET A = 144".split(" ")));
+    prog.addStatement(new Statement("LET B = 128".split(" ")));
     prog.addStatement(new Statement("SYSCALL".split(" ")));
 
     String instructions = prog.getInstructions(false);
@@ -248,10 +313,58 @@ public class ProgramTest {
   }
 
   /**
-   * Test output of operating codes for ADD to X.
+   * Test output of operating codes for ADD to X. Uses hexadecimal values.
    */
   @Test
   public void testGetInstructionsForAddToX() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET X = 0x8B".split(" ")));
+    prog.addStatement(new Statement("ADD 0x40 TO X".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0223\n0213\n0203\n0100\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT from A.
+   */
+  @Test
+  public void testGetInstructionsForSubtractFromA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("SUBTRACT 014 FROM A".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0013\n0014\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT from B.
+   */
+  @Test
+  public void testGetInstructionsForSubtractFromB() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET B = 0210".split(" ")));
+    prog.addStatement(new Statement("SUBTRACT 022 FROM B".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0123\n0210\n0113\n0022\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT from X.
+   */
+  @Test
+  public void testGetInstructionsForSubtractFromX() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET X = 0213".split(" ")));
     prog.addStatement(new Statement("ADD 0100 TO X".split(" ")));
@@ -363,5 +476,20 @@ public class ProgramTest {
 
     assertEquals("Incorrect instructions with IF X NOTZERO", expected,
         instructions);
+  }
+
+  /**
+   * Test output of operating codes for HALT.
+   */
+  @Test
+  public void testGetInstructionsForHalt() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("HALT".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0000\n";
+
+    assertEquals("Incorrect instructions with HALT", expected, instructions);
   }
 }

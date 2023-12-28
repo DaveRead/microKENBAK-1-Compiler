@@ -1,4 +1,4 @@
-package us.daveread.microkenbak1.compiler;
+package us.daveread.microkenbak1.compiler.instruction;
 
 /**
  * Instruction with a single operation code.

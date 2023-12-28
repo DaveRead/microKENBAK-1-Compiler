@@ -1,12 +1,12 @@
-package us.daveread.microkenbak1.compiler.test;
+package us.daveread.microkenbak1.compiler.instruction.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import us.daveread.microkenbak1.compiler.JumpInstruction;
-import us.daveread.microkenbak1.compiler.JumpType;
+import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
+import us.daveread.microkenbak1.compiler.instruction.JumpType;
 
 /**
  * Unit tests for the JumpInstruction class.

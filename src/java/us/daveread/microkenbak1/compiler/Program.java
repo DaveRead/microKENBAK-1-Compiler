@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
+import us.daveread.microkenbak1.compiler.instruction.Label;
+import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+
 /**
  * Contains all the statements making up the program.
  * 

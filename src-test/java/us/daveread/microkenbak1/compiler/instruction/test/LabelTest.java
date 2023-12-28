@@ -1,4 +1,4 @@
-package us.daveread.microkenbak1.compiler.test;
+package us.daveread.microkenbak1.compiler.instruction.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
-import us.daveread.microkenbak1.compiler.Label;
+import us.daveread.microkenbak1.compiler.instruction.Label;
 
 /**
  * Unit tests for the Label class.

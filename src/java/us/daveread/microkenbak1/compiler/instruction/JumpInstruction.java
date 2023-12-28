@@ -1,4 +1,4 @@
-package us.daveread.microkenbak1.compiler;
+package us.daveread.microkenbak1.compiler.instruction;
 
 /**
  * A jump instruction. Jump may be based on a value in A, B, or X. Otherwise it
