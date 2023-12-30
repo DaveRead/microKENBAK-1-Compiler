@@ -134,7 +134,7 @@ public class ProgramTest {
   /**
    * Test detection of missing jump label name.
    */
-  @Test(expected=IllegalStateException.class)
+  @Test(expected = IllegalStateException.class)
   public void testGetInstructionsMissingJumpLabelName() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET B = 0217".split(" ")));
@@ -150,7 +150,7 @@ public class ProgramTest {
   /**
    * Test detection of jump label name with spaces.
    */
-  @Test(expected=IllegalStateException.class)
+  @Test(expected = IllegalStateException.class)
   public void testGetInstructionsJumpLabelNameWithSpaces() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET B = 0217".split(" ")));
@@ -166,7 +166,7 @@ public class ProgramTest {
   /**
    * Test detection of missing jump label.
    */
-  @Test(expected=IllegalStateException.class)
+  @Test(expected = IllegalStateException.class)
   public void testGetInstructionsMissingJumpTarget() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET B = 0217".split(" ")));
@@ -182,7 +182,7 @@ public class ProgramTest {
   /**
    * Test detection of duplicate jump label.
    */
-  @Test(expected=IllegalStateException.class)
+  @Test(expected = IllegalStateException.class)
   public void testGetInstructionsDuplicatedJumpTarget() {
     Program prog = new Program();
     prog.addStatement(new Statement("LABEL begin".split(" ")));
@@ -281,10 +281,10 @@ public class ProgramTest {
   }
 
   /**
-   * Test output of operating codes for ADD to A.
+   * Test output of operating codes for ADD literal to A.
    */
   @Test
-  public void testGetInstructionsForAddToA() {
+  public void testGetInstructionsForAddLiteralToA() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET A = 0210".split(" ")));
     prog.addStatement(new Statement("ADD 014 TO A".split(" ")));
@@ -300,7 +300,7 @@ public class ProgramTest {
    * Test output of operating codes for ADD to B.
    */
   @Test
-  public void testGetInstructionsForAddToB() {
+  public void testGetInstructionsForAddLiteralToB() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET B = 0210".split(" ")));
     prog.addStatement(new Statement("ADD 022 TO B".split(" ")));
@@ -316,7 +316,7 @@ public class ProgramTest {
    * Test output of operating codes for ADD to X. Uses hexadecimal values.
    */
   @Test
-  public void testGetInstructionsForAddToX() {
+  public void testGetInstructionsForAddLiteralToX() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET X = 0x8B".split(" ")));
     prog.addStatement(new Statement("ADD 0x40 TO X".split(" ")));
@@ -329,10 +329,77 @@ public class ProgramTest {
   }
 
   /**
-   * Test output of operating codes for SUBTRACT from A.
+   * Test output of operating codes for ADD A to A.
    */
   @Test
-  public void testGetInstructionsForSubtractFromA() {
+  public void testGetInstructionsForAddAToA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("ADD A TO A".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0004\n0000\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for ADD B to A.
+   */
+  @Test
+  public void testGetInstructionsForAddBToA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("LET B = 03".split(" ")));
+    prog.addStatement(new Statement("ADD B TO A".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0123\n0003\n0004\n0001\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for ADD A to X.
+   */
+  @Test
+  public void testGetInstructionsForAddAToX() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("LET X = 03".split(" ")));
+    prog.addStatement(new Statement("ADD A TO X".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0223\n0003\n0204\n0000\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for ADD X to B.
+   */
+  @Test
+  public void testGetInstructionsForAddXToB() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET B = 0210".split(" ")));
+    prog.addStatement(new Statement("LET X = 03".split(" ")));
+    prog.addStatement(new Statement("ADD X TO B".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0123\n0210\n0223\n0003\n0104\n0002\n";
+
+    assertEquals("Incorrect instructions with ADD", expected, instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT literal from A.
+   */
+  @Test
+  public void testGetInstructionsForSubtractLiteralFromA() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET A = 0210".split(" ")));
     prog.addStatement(new Statement("SUBTRACT 014 FROM A".split(" ")));
@@ -341,14 +408,15 @@ public class ProgramTest {
 
     String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0013\n0014\n";
 
-    assertEquals("Incorrect instructions with ADD", expected, instructions);
+    assertEquals("Incorrect instructions with SUBTRACT", expected,
+        instructions);
   }
 
   /**
-   * Test output of operating codes for SUBTRACT from B.
+   * Test output of operating codes for SUBTRACT literal from B.
    */
   @Test
-  public void testGetInstructionsForSubtractFromB() {
+  public void testGetInstructionsForSubtractLiteralFromB() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET B = 0210".split(" ")));
     prog.addStatement(new Statement("SUBTRACT 022 FROM B".split(" ")));
@@ -357,14 +425,15 @@ public class ProgramTest {
 
     String expected = "0000\n0000\n0000\n0004\n0123\n0210\n0113\n0022\n";
 
-    assertEquals("Incorrect instructions with ADD", expected, instructions);
+    assertEquals("Incorrect instructions with SUBTRACT", expected,
+        instructions);
   }
 
   /**
-   * Test output of operating codes for SUBTRACT from X.
+   * Test output of operating codes for SUBTRACT literal from X.
    */
   @Test
-  public void testGetInstructionsForSubtractFromX() {
+  public void testGetInstructionsForSubtractLiteralFromX() {
     Program prog = new Program();
     prog.addStatement(new Statement("LET X = 0213".split(" ")));
     prog.addStatement(new Statement("ADD 0100 TO X".split(" ")));
@@ -373,7 +442,61 @@ public class ProgramTest {
 
     String expected = "0000\n0000\n0000\n0004\n0223\n0213\n0203\n0100\n";
 
-    assertEquals("Incorrect instructions with ADD", expected, instructions);
+    assertEquals("Incorrect instructions with SUBTRACT", expected,
+        instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT A from A.
+   */
+  @Test
+  public void testGetInstructionsForSubtractAFromA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("SUBTRACT A FROM A".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0014\n0000\n";
+
+    assertEquals("Incorrect instructions with SUBTRACT", expected,
+        instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT B from A.
+   */
+  @Test
+  public void testGetInstructionsForSubtractBFromA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("LET B = 3".split(" ")));
+    prog.addStatement(new Statement("SUBTRACT B FROM A".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0123\n0003\n0014\n0001\n";
+
+    assertEquals("Incorrect instructions with SUBTRACT", expected,
+        instructions);
+  }
+
+  /**
+   * Test output of operating codes for SUBTRACT A from X.
+   */
+  @Test
+  public void testGetInstructionsForSubtractAFromX() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 0210".split(" ")));
+    prog.addStatement(new Statement("LET X = 3".split(" ")));
+    prog.addStatement(new Statement("SUBTRACT A FROM X".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0210\n0223\n0003\n0214\n0000\n";
+
+    assertEquals("Incorrect instructions with SUBTRACT", expected,
+        instructions);
   }
 
   /**
@@ -473,6 +596,44 @@ public class ProgramTest {
     String instructions = prog.getInstructions(false);
 
     String expected = "0000\n0000\n0000\n0004\n0243\n0004\n";
+
+    assertEquals("Incorrect instructions with IF X NOTZERO", expected,
+        instructions);
+  }
+
+  /**
+   * Test output of operating codes for test of a conditional jump if A overflowed.
+   */
+  @Test
+  public void testGetInstructionsForIfOverflowA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET A = 255".split(" ")));    
+    prog.addStatement(new Statement("LABEL TopLoop".split(" ")));
+    prog.addStatement(new Statement("ADD 1 to A".split(" ")));
+    prog.addStatement(new Statement("IF A OVERFLOW GOTO TopLoop".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0023\n0377\n0003\n0001\n0212\n0201\n0344\n0006\n";
+
+    assertEquals("Incorrect instructions with IF X NOTZERO", expected,
+        instructions);
+  }
+
+  /**
+   * Test output of operating codes for test of a conditional jump if B overflowed.
+   */
+  @Test
+  public void testGetInstructionsForIfOverflowB() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("LET B = 0".split(" ")));    
+    prog.addStatement(new Statement("LABEL TopLoop".split(" ")));
+    prog.addStatement(new Statement("SUBTRACT 1 from B".split(" ")));
+    prog.addStatement(new Statement("IF B OVERFLOW GOTO TopLoop".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0123\n0000\n0113\n0001\n0212\n0202\n0344\n0006\n";
 
     assertEquals("Incorrect instructions with IF X NOTZERO", expected,
         instructions);

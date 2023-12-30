@@ -40,7 +40,22 @@ public enum JumpType {
   /**
    * Unconditional jump.
    */
-  UNCONDITIONAL(0344);
+  UNCONDITIONAL(0344),
+
+  /**
+   * Overflow of A. Value is memory location of overflow/carry flag.
+   */
+  A_OVERFLOW(0201),
+
+  /**
+   * Overflow of B. Value is memory location of overflow/carry flag.
+   */
+  B_OVERFLOW(0202),
+
+  /**
+   * Overflow of X. Value is memory location of overflow/carry flag.
+   */
+  X_OVERFLOW(0203);
 
   /**
    * The operation code associated with this jump type.

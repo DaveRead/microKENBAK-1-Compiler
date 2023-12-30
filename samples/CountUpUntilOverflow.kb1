@@ -1,0 +1,20 @@
+# Program to repeatedly count from 0 to 255, displaying each value on the LEDs
+
+# Set A and B for program delay syscall  
+let a = 0222  
+let b = 0200  
+
+# Initialize X  
+let x = 0  
+  
+# Top of loop to display counting on LEDs  
+label top  
+add 1 to x  
+if x overflow goto end 
+memcopy x to display  
+syscall 
+goto top
+
+label end
+let x = 0252
+memcopy x to display

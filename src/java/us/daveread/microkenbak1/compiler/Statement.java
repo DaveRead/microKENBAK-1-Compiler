@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
 import us.daveread.microkenbak1.compiler.instruction.JumpType;
 import us.daveread.microkenbak1.compiler.instruction.Label;
@@ -19,9 +21,21 @@ import us.daveread.microkenbak1.compiler.instruction.OperationInstruction;
  */
 public class Statement {
   /**
+   * The logger.
+   */
+  private final static Logger LOG;
+
+  /**
    * The bytes representing the operations on the microKenbak-1
    */
   private List<OpCodes> programBytes;
+
+  /**
+   * Set up the logger instance.
+   */
+  static {
+    LOG = Logger.getLogger(Statement.class);
+  }
 
   /**
    * create a statement, parsing the supplied array of lexemes (parsed text line
@@ -258,10 +272,39 @@ public class Statement {
    */
   public void handleAdd(String[] lexemes) {
     if (lexemes.length != 4 || !lexemes[2].equalsIgnoreCase("TO")) {
-      throw new IllegalStateException("ADD requires value, TO, and variable");
+      throw new IllegalStateException("ADD requires source, TO, and variable");
     }
 
-    verifyByteValue(lexemes[1]);
+    boolean hasMemoryIndirection = false;
+    int memoryLocation = 0;
+
+    try {
+      verifyVariableName(lexemes[1]);
+      hasMemoryIndirection = true;
+    } catch (IllegalStateException ise) {
+      LOG.debug(
+          "Expected exception in ADD, not a variable, now expecting literal");
+    }
+
+    if (hasMemoryIndirection) {
+      switch (lexemes[1].toUpperCase()) {
+        case "A":
+          memoryLocation = 0;
+          break;
+        case "B":
+          memoryLocation = 1;
+          break;
+        case "X":
+          memoryLocation = 2;
+          break;
+        default:
+          throw new IllegalStateException(
+              "Unknown variable name in ADD: " + lexemes[1]);
+      }
+    } else {
+      verifyByteValue(lexemes[1]);
+    }
+
     verifyVariableName(lexemes[3]);
 
     int opCode;
@@ -281,12 +324,19 @@ public class Statement {
             "Undefined variable name for ADD: " + lexemes[1]);
     }
 
+    if (hasMemoryIndirection) {
+      opCode += 1;
+    }
+
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.decode(lexemes[1]));
+    if (hasMemoryIndirection) {
+      inst = new OperationInstruction(memoryLocation);
+    } else {
+      inst = new OperationInstruction(Integer.decode(lexemes[1]));
+    }
     add(inst);
-
   }
 
   /**
@@ -301,7 +351,36 @@ public class Statement {
           "SUBTRACT requires value, FROM, and variable");
     }
 
-    verifyByteValue(lexemes[1]);
+    boolean hasMemoryIndirection = false;
+    int memoryLocation = 0;
+
+    try {
+      verifyVariableName(lexemes[1]);
+      hasMemoryIndirection = true;
+    } catch (IllegalStateException ise) {
+      LOG.debug(
+          "Expected exception in SUBTRACT, not a variable, now expecting literal");
+    }
+
+    if (hasMemoryIndirection) {
+      switch (lexemes[1].toUpperCase()) {
+        case "A":
+          memoryLocation = 0;
+          break;
+        case "B":
+          memoryLocation = 1;
+          break;
+        case "X":
+          memoryLocation = 2;
+          break;
+        default:
+          throw new IllegalStateException(
+              "Unknown variable name in SUBTRACT: " + lexemes[1]);
+      }
+    } else {
+      verifyByteValue(lexemes[1]);
+    }
+
     verifyVariableName(lexemes[3]);
 
     int opCode;
@@ -321,10 +400,18 @@ public class Statement {
             "Undefined variable name for SUBTRACT: " + lexemes[1]);
     }
 
+    if (hasMemoryIndirection) {
+      opCode += 1;
+    }
+
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.decode(lexemes[1]));
+    if (hasMemoryIndirection) {
+      inst = new OperationInstruction(memoryLocation);
+    } else {
+      inst = new OperationInstruction(Integer.decode(lexemes[1]));
+    }
     add(inst);
   }
 
@@ -339,6 +426,8 @@ public class Statement {
       throw new IllegalStateException(
           "IF requires test, variable, GOTO, and label");
     }
+
+    boolean isOverflowJump = lexemes[2].toUpperCase().equals("OVERFLOW");
 
     verifyVariableName(lexemes[1]);
 
@@ -377,13 +466,36 @@ public class Statement {
                 "Undefined variable name for IF: " + lexemes[2]);
         }
         break;
+      case "OVERFLOW":
+        switch (lexemes[1].toUpperCase()) {
+          case "A":
+            jumpType = JumpType.A_OVERFLOW;
+            break;
+          case "B":
+            jumpType = JumpType.B_OVERFLOW;
+            break;
+          case "X":
+            jumpType = JumpType.X_OVERFLOW;
+            break;
+          default:
+            throw new IllegalStateException(
+                "Undefined variable name for IF: " + lexemes[2]);
+        }
+        break;
       default:
         throw new IllegalStateException(
             "Undefined IF test (expected NOTZERO ir ISZERO): " + lexemes[1]);
     }
 
-    JumpInstruction jump = new JumpInstruction(jumpType, lexemes[4]);
-    add(jump);
+    if (isOverflowJump) {
+      // Skip the jump if no overflow (e.g. carry flag is 0)
+      add(new OperationInstruction(0212));
+      add(new OperationInstruction(jumpType.getOpCode()));
+      add(new JumpInstruction(JumpType.UNCONDITIONAL, lexemes[4]));
+    } else {
+      JumpInstruction jump = new JumpInstruction(jumpType, lexemes[4]);
+      add(jump);
+    }
   }
 
   /**
