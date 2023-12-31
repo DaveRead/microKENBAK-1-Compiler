@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 
 import org.apache.log4j.Logger;
 
+import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+
 /**
  * compiler to convert the high-level syntax to the microKenbek-1 operating
  * codes.
@@ -113,6 +115,84 @@ public class Compiler {
   }
 
   /**
+   * Write the operating codes as an HTML file.
+   * 
+   * @param sourceFilename
+   *          The source file
+   * @param destinationFilename
+   *          The output file for the operating codes
+   * @param program
+   *          The program whose operating codes are to be written to the output
+   *          file
+   */
+  private void writeHtmlFile(String sourceFilename,
+      String destinationFilename, Program program) {
+    FileWriter writer = null;
+
+    try {
+      writer = new FileWriter(destinationFilename);
+      writer.write(getHtml(sourceFilename, program));
+    } catch (IllegalStateException ise) {
+      System.out.println("Error formatting instructions: " + ise.getMessage());
+      LOG.error("Error formatting instructions", ise);
+    } catch (IOException ioe) {
+      System.out.println(
+          "Error writing file: " + destinationFilename + " [" + ioe.getMessage()
+              + "]");
+      LOG.error("Error writing file: " + destinationFilename, ioe);
+    } finally {
+      if (writer != null) {
+        try {
+          writer.close();
+        } catch (IOException ioe) {
+          LOG.error("Error closing output file: " + destinationFilename, ioe);
+        }
+      }
+    }
+  }
+
+  public String getHtml(String name, Program program) {
+    StringBuffer page = new StringBuffer();
+
+    page.append("<html>\n");
+    page.append("<head><title>" + name + "</title></head>\n");
+
+    page.append("<body>\n");
+    page.append("<h1>Operation Codes for " + name + "</h1>\n");
+    page.append("  <table border=\"1\">\n");
+    page.append(
+        "    <tr><th>Statement Number</th><th>Statement</th><th>Op Codes and Values</th></tr>\n");
+
+    int statementCount = 1;
+    for (Statement stmt : program.getStatements()) {
+      page.append("    <tr>\n");
+      page.append("      <td>" + statementCount + "</td>\n");
+      page.append("      <td>" + stmt.getFormattedStatement() + "</td>\n");
+      page.append("      <td>");
+      page.append("        <table border=\"0\">\n");
+      OpCodes[] opCodes = stmt.getOpCodes();
+      for (OpCodes opCode : opCodes) {
+        page.append("        <tr><td>"
+            + String.format("%04o", opCode.getMemoryLocation()) + ": ");
+        if (opCode.getFormattedOp() == null) {
+          page.append(opCode.toString());
+        } else {
+          page.append(opCode.getFormattedOp());
+        }
+        page.append("</td></tr>\n");
+      }
+      page.append("        </table>\n");
+      page.append("      </td>\n");
+      page.append("    </tr>\n");
+      ++statementCount;
+    }
+    page.append("  </table>\n");
+    page.append("</body>\n");
+
+    return page.toString();
+  }
+
+  /**
    * Run the compilation process. If an output file name is given, the resulting
    * program operating codes will be written to the file suitable for upload
    * into a microKenbek-1 computer.
@@ -127,7 +207,7 @@ public class Compiler {
   public static void main(String[] args) {
     if (args.length < 1 || args.length > 2) {
       System.out.println(
-          "An input program file name and optional output file name must be provided");
+          "An input program file name must be provided. An optional output file name or --AsHTML are supported");
       System.exit(1);
     }
 
@@ -135,7 +215,9 @@ public class Compiler {
     Program program = compiler.compile(args[0]);
 
     if (program != null) {
-      if (args.length == 2) {
+      if (args.length == 2 && args[1].equalsIgnoreCase("--ASHTML")) {
+        compiler.writeHtmlFile(args[0], args[0] + ".html", program);
+      } else if (args.length == 2) {
         compiler.writeProgramFile(args[1], program);
       } else {
         System.out.println("Resulting operating codes:");

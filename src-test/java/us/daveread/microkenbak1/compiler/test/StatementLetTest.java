@@ -12,7 +12,7 @@ import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 public class StatementLetTest {
 
   @Test
-  public void testLetA() {
+  public void testLetAssignLiteralToA() {
     String statement = "LET A = 0105";
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
@@ -23,7 +23,29 @@ public class StatementLetTest {
   }
 
   @Test
-  public void testLetB() {
+  public void testLetAssignMemoryLocationValueToA() {
+    String statement = "LET A = VALUEIN 0105";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement", "0024", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement", "0105", inst[1].getFormattedOp());
+  }
+
+  @Test
+  public void testLetAssignMnemonicNameValueToA() {
+    String statement = "LET A = VALUEIN DISPLAY";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement", "0024", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement", "0200", inst[1].getFormattedOp());
+  }
+
+  @Test
+  public void testLetAssignLiteralToB() {
     String statement = "LET b = 0010";
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
@@ -32,9 +54,31 @@ public class StatementLetTest {
     assertEquals("Incorrect first formatted operation for LET statement", "0123", inst[0].getFormattedOp());
     assertEquals("Incorrect second formatted operation for LET statement", "0010", inst[1].getFormattedOp());
   }
-  
+
   @Test
-  public void testLetX() {
+  public void testLetAssignMemoryLocationValueToB() {
+    String statement = "LET b = valuein 0010";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement", "0124", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement", "0010", inst[1].getFormattedOp());
+  }
+
+  @Test
+  public void testLetAssignMnemonicNameValueToB() {
+    String statement = "LET b = valuein input";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement", "0124", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement", "0377", inst[1].getFormattedOp());
+  }
+
+  @Test
+  public void testLetAssignLiteralToX() {
     String statement = "LET X = 0377";
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
@@ -42,6 +86,28 @@ public class StatementLetTest {
     assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
     assertEquals("Incorrect first formatted operation for LET statement", "0223", inst[0].getFormattedOp());
     assertEquals("Incorrect second formatted operation for LET statement", "0377", inst[1].getFormattedOp());
+  }
+  
+  @Test
+  public void testLetAssignMemoryLocationValueToX() {
+    String statement = "LET X = valuein 0377";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement", "0224", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement", "0377", inst[1].getFormattedOp());
+  }
+
+  @Test
+  public void testLetAssignMnemonicNameValueToX() {
+    String statement = "LET X = valuein a";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement", "0224", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement", "0000", inst[1].getFormattedOp());
   }
   
   @Test(expected = IllegalStateException.class)

@@ -81,6 +81,11 @@ public class Label extends OpCodes {
    */
   @Override
   public String getFormattedOp() {
-    return null;
+    return null; //"(label " + getName() + ")";
+  }
+
+  @Override
+  public String toString() {
+    return "(label " + getName() + ")";
   }
 }

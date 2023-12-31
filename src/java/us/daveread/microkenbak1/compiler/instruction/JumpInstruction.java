@@ -105,5 +105,6 @@ public class JumpInstruction extends OpCodes {
   public String getFormattedOp() {
     return getType().getFormattedOp() + "\n"
         + String.format("%04o", getDestinationAddress());
+    //    + "        : " + String.format("%04o", getDestinationAddress());
   }
 }

@@ -50,7 +50,7 @@ public abstract class OpCodes {
 
   /**
    * The number of memory cells this instruction requires. Default is 1.
-   * Subclasses may beed to override this if an OpCode requires more than one
+   * Subclasses may need to override this if an OpCode requires more than one
    * byte.
    * 
    * @return Number of memory cells required for this OpCode.

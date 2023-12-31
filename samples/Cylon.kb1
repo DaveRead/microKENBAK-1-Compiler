@@ -1,0 +1,124 @@
+# Program to light LEDs Cylone-style (back and forth) using bitshifting
+
+# Uses memory location 0376 to hold value for yellow LEDs
+# Uses memory location 0375 to hold direction of bitshifting for yellow LEDs
+# Uses memory location 0374 to hold direction of bitshifting for white LEDs
+
+# Initially shift white and yellow LEDs to the left
+
+let x = 0
+memcopy x to 0374
+memcopy x to 0375
+
+# Initialize yellow LED value to 1
+let x = 1
+memcopy x to 0376
+let b = valuein 0376
+
+# Update yellow LEDs based on value in b
+let a = 0220
+syscall
+
+label START_WHITE_LEFT
+
+# Shifting white LEDs left
+let x = 0 
+memcopy x to 0374
+
+# Initialize white LED value to 1
+let a = 2  
+memcopy a to display
+
+goto TOP_YELLOW
+
+label TOP
+
+let x = valuein 0374
+if x notzero goto WHITE_TO_RIGHT
+
+# Move white to left
+let a = valuein display
+bitshift a left
+if a iszero goto START_WHITE_RIGHT
+memcopy a to display
+goto TOP_YELLOW
+
+label START_WHITE_RIGHT
+let x = 1 # Shifting right
+memcopy x to 0374
+let a = 0100
+memcopy a to display
+goto TOP_YELLOW
+
+label WHITE_TO_RIGHT
+
+let a = valuein display
+bitshift a right
+and 0177
+if a iszero goto START_WHITE_LEFT
+memcopy a to display
+
+goto TOP_YELLOW
+
+label START_YELLOW_LEFT
+
+let x = 0 
+memcopy x to 0375
+let x = 2
+memcopy x to 0376
+let b = valuein 0376
+# Update yellow LEDs based on value in b
+let a = 0220
+syscall
+goto DELAY
+
+label TOP_YELLOW
+
+let x = valuein 0375
+if x notzero goto YELLOW_TO_RIGHT
+
+# Move yellow to left
+let a = valuein 0376
+bitshift a left
+and 0017 # Only 4 yellow leds
+if a iszero goto START_YELLOW_RIGHT
+
+memcopy a to 0376
+let b = valuein 0376
+# Update yellow LEDs based on value in b
+let a = 0220
+syscall
+goto DELAY
+
+label START_YELLOW_RIGHT
+
+let x = 1
+memcopy x to 0375
+let x = 0004
+memcopy x to 0376
+let b = valuein 0376
+# Update yellow LEDs based on value in b
+let a = 0220
+syscall
+goto DELAY
+
+label YELLOW_TO_RIGHT
+
+let a = valuein 0376
+bitshift a right
+if a iszero goto START_YELLOW_LEFT
+
+memcopy a to 0376
+let b = valuein a
+let a = 0220
+syscall
+
+# fallthrough to DELAY
+
+label DELAY
+# Set A and B for program delay syscall  
+let a = 0222  
+let b = 0377  
+syscall
+
+goto TOP

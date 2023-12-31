@@ -1,12 +1,14 @@
 package us.daveread.microkenbak1.compiler.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.Program;
 import us.daveread.microkenbak1.compiler.Statement;
+import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
 import us.daveread.microkenbak1.compiler.instruction.Label;
 import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 
@@ -602,12 +604,13 @@ public class ProgramTest {
   }
 
   /**
-   * Test output of operating codes for test of a conditional jump if A overflowed.
+   * Test output of operating codes for test of a conditional jump if A
+   * overflowed.
    */
   @Test
   public void testGetInstructionsForIfOverflowA() {
     Program prog = new Program();
-    prog.addStatement(new Statement("LET A = 255".split(" ")));    
+    prog.addStatement(new Statement("LET A = 255".split(" ")));
     prog.addStatement(new Statement("LABEL TopLoop".split(" ")));
     prog.addStatement(new Statement("ADD 1 to A".split(" ")));
     prog.addStatement(new Statement("IF A OVERFLOW GOTO TopLoop".split(" ")));
@@ -621,12 +624,13 @@ public class ProgramTest {
   }
 
   /**
-   * Test output of operating codes for test of a conditional jump if B overflowed.
+   * Test output of operating codes for test of a conditional jump if B
+   * overflowed.
    */
   @Test
   public void testGetInstructionsForIfOverflowB() {
     Program prog = new Program();
-    prog.addStatement(new Statement("LET B = 0".split(" ")));    
+    prog.addStatement(new Statement("LET B = 0".split(" ")));
     prog.addStatement(new Statement("LABEL TopLoop".split(" ")));
     prog.addStatement(new Statement("SUBTRACT 1 from B".split(" ")));
     prog.addStatement(new Statement("IF B OVERFLOW GOTO TopLoop".split(" ")));
@@ -653,4 +657,331 @@ public class ProgramTest {
 
     assertEquals("Incorrect instructions with HALT", expected, instructions);
   }
+
+  /**
+   * Test for one bit (default) left shift of A
+   */
+  @Test
+  public void testGetInstructionsForBitshiftLeftOneADefault() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("BITSHIFT A LEFT".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0211\n";
+
+    assertEquals("Incorrect instructions with BITSHIFT LEFT A", expected,
+        instructions);
+  }
+
+  /**
+   * Test for one bit (default) right shift of B
+   */
+  @Test
+  public void testGetInstructionsForBitshiftRightOneBDefault() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("BITSHIFT B RIGHT".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0051\n";
+
+    assertEquals("Incorrect instructions with BITSHIFT RIGHT B", expected,
+        instructions);
+  }
+
+  /**
+   * Test for two bit left shift of B
+   */
+  @Test
+  public void testGetInstructionsForBitshiftLeftTwoB() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("BITSHIFT B LEFT 2".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0261\n";
+
+    assertEquals("Incorrect instructions with BITSHIFT LEFT B 2", expected,
+        instructions);
+  }
+
+  /**
+   * Test for three bit right shift of A
+   */
+  @Test
+  public void testGetInstructionsForBitshiftRightThreeA() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("BITSHIFT A RIGHT 3".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0031\n";
+
+    assertEquals("Incorrect instructions with BITSHIFT RIGHT A 3", expected,
+        instructions);
+  }
+
+  /**
+   * Test for four bit left shift of B
+   */
+  @Test
+  public void testGetInstructionsForBitshiftLeftFourB() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("BITSHIFT B LEFT 4".split(" ")));
+
+    String instructions = prog.getInstructions(false);
+
+    String expected = "0000\n0000\n0000\n0004\n0241\n";
+
+    assertEquals("Incorrect instructions with BITSHIFT LEFT B 4", expected,
+        instructions);
+  }
+
+  /**
+   * Test long program for jump around display memory location (0200)
+   */
+  @Test
+  public void testLongProgramForJumpAroundDisplayMemoryNoGap() {
+    Program prog = new Program();
+
+    // Fill memory locations 4 through 123 with NOOP
+    for (int statementCount = 0; statementCount < 120; ++statementCount) {
+      prog.addStatement(new Statement("NOOP".split(" ")));
+    }
+
+    // Memory locations 124-125
+    prog.addStatement(new Statement("LET A = 0100".split(" ")));
+
+    // Memory locations 126-127 (should be moved to 201-202 and replaced with
+    // jump to 201)
+    prog.addStatement(new Statement("LET B = 010".split(" ")));
+
+    // Memory locations 128-129 (should be moved to 203-204)
+    prog.addStatement(new Statement("LET X = 1".split(" ")));
+
+    Statement[] stmts = prog.getStatements();
+
+    for (int stmtCount = 119; stmtCount < stmts.length; ++stmtCount) {
+      System.out.println("Statement [" + stmtCount + "] ");
+      OpCodes[] opCodes = stmts[stmtCount].getOpCodes();
+      for (OpCodes oc : opCodes) {
+        System.out.println("    " + oc);
+      }
+    }
+
+    // Check for the expected updated statements: LET A, JUMP, NOOP, NOOP, NOOP,
+    // NOOP, LABEL, LET
+    // B, LET X and corresponding locations
+    assertEquals("Incorrect number of statements in long program", 129,
+        stmts.length);
+
+    // Check jump past display memory address
+    assertTrue("Missing jump instruction prior to display address",
+        stmts[121].getOpCodes()[0] instanceof JumpInstruction);
+    JumpInstruction jumpInst = (JumpInstruction) stmts[121].getOpCodes()[0];
+    assertEquals("Jump not correct prior to display address", 0344,
+        jumpInst.getType().getOpCode());
+    assertEquals("Jump target not correct prior to display address", 0204,
+        jumpInst.getDestinationAddress());
+
+    // Check NOOP in display and overflow flag addresses
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[122].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[123].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[124].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[125].getOpCodes()[0].getFormattedOp());
+
+    // Check moved assignment past display address
+    assertEquals("Missing assignment instruction after display address", 2,
+        stmts[127].getOpCodes().length);
+    assertEquals("Assignment to B not correct after move past display address",
+        "0123",
+        stmts[127].getOpCodes()[0].getFormattedOp());
+    assertEquals(
+        "Assignment value to B not cirrect after move past display address",
+        "0010",
+        stmts[127].getOpCodes()[1].getFormattedOp());
+
+    assertEquals("Missing assignment instruction after display address", 2,
+        stmts[128].getOpCodes().length);
+    assertEquals("Assignment to X not correct after move past display address",
+        "0223",
+        stmts[128].getOpCodes()[0].getFormattedOp());
+    assertEquals(
+        "Assignment value to X not correct after move past display address",
+        "0001",
+        stmts[128].getOpCodes()[1].getFormattedOp());
+
+  }
+
+  /**
+   * Test long program for jump around display memory location (0200). Will
+   * require a NOOP in memory locations 0177-0200.
+   */
+  @Test
+  public void testLongProgramForJumpAroundDisplayMemoryWithGap() {
+    Program prog = new Program();
+
+    // Fill memory locations 4 through 124 with NOOP
+    for (int statementCount = 0; statementCount < 121; ++statementCount) {
+      prog.addStatement(new Statement("NOOP".split(" ")));
+    }
+
+    // Memory locations 125-126 (should be moved to 201-202 and replaced with
+    // jump and noops)
+    prog.addStatement(new Statement("LET A = 0100".split(" ")));
+
+    // Memory locations 127-128 (should be moved to 203-204 and replaced with
+    // jump to 201)
+    prog.addStatement(new Statement("LET B = 010".split(" ")));
+
+    // Memory locations 129-130 (should be moved to 205-206)
+    prog.addStatement(new Statement("LET X = 1".split(" ")));
+
+    Statement[] stmts = prog.getStatements();
+
+    // for (int stmtCount = 119; stmtCount < stmts.length; ++stmtCount) {
+    // System.out.println("Statement [" + stmtCount + "] ");
+    // OpCodes[] opCodes = stmts[stmtCount].getOpCodes();
+    // for (OpCodes oc : opCodes) {
+    // System.out.println(" " + oc);
+    // }
+    // }
+
+    // Check for the expected updated statements: JUMP, NOOP, NOOP, NOOP,
+    // NOOP, NOOP, LABEL, LET A, LET B, LET X and corresponding locations
+    assertEquals("Incorrect number of statements in long program", 131,
+        stmts.length);
+
+    // Check jump past display memory address
+    assertTrue("Missing jump instruction prior to display address",
+        stmts[121].getOpCodes()[0] instanceof JumpInstruction);
+    JumpInstruction jumpInst = (JumpInstruction) stmts[121].getOpCodes()[0];
+    assertEquals("Jump not correct prior to display address", 0344,
+        jumpInst.getType().getOpCode());
+    assertEquals("Jump target not correct prior to display address", 0204,
+        jumpInst.getDestinationAddress());
+
+    // Check NOOP in 0177, display, and overflow addresses
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[122].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[123].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[124].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[125].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[126].getOpCodes()[0].getFormattedOp());
+
+    // Check moved assignments past display address
+    assertEquals("Missing assignment instruction after display address", 2,
+        stmts[128].getOpCodes().length);
+    assertEquals("Assignment to A not correct after move past display address",
+        "0023",
+        stmts[128].getOpCodes()[0].getFormattedOp());
+    assertEquals(
+        "Assignment value to A not correct after move past display address",
+        "0100",
+        stmts[128].getOpCodes()[1].getFormattedOp());
+
+    assertEquals("Missing assignment instruction after display address", 2,
+        stmts[129].getOpCodes().length);
+    assertEquals("Assignment to B not correct after move past display address",
+        "0123",
+        stmts[129].getOpCodes()[0].getFormattedOp());
+    assertEquals(
+        "Assignment value to B not cirrect after move past display address",
+        "0010",
+        stmts[129].getOpCodes()[1].getFormattedOp());
+
+    assertEquals("Missing assignment instruction after display address", 2,
+        stmts[130].getOpCodes().length);
+    assertEquals("Assignment to X not correct after move past display address",
+        "0223",
+        stmts[130].getOpCodes()[0].getFormattedOp());
+    assertEquals(
+        "Assignment value to X not correct after move past display address",
+        "0001",
+        stmts[130].getOpCodes()[1].getFormattedOp());
+
+  }
+
+  /**
+   * Test long program for jump around display memory location (0200). Will
+   * require a NOOP in memory locations 0177-0200.
+   */
+  @Test
+  public void testLongProgramForJumpAroundDisplayMemoryWithLabelBeforeGap() {
+    Program prog = new Program();
+
+    // Fill memory locations 4 through 124 with NOOP
+    for (int statementCount = 0; statementCount < 119; ++statementCount) {
+      prog.addStatement(new Statement("NOOP".split(" ")));
+    }
+
+    prog.addStatement(new Statement("SYSCALL".split(" ")));
+    prog.addStatement(new Statement("SYSCALL".split(" ")));
+
+    prog.addStatement(new Statement("LABEL LABEL1".split(" ")));
+
+    prog.addStatement(new Statement("LET A = 0100".split(" ")));
+
+    // Memory locations 125-126 (should be moved to 201-202 and replaced with
+    // jump and noops)
+    prog.addStatement(new Statement("LET B = 0010".split(" ")));
+
+    Statement[] stmts = prog.getStatements();
+
+    for (int stmtCount = 116; stmtCount < stmts.length; ++stmtCount) {
+      System.out.println("Statement [" + stmtCount + "] ");
+      OpCodes[] opCodes = stmts[stmtCount].getOpCodes();
+      for (OpCodes oc : opCodes) {
+        System.out.println(" " + oc);
+      }
+    }
+
+    // Check for the expected updated statements: SYSCALL, LABEL, JUMP, LABEL,
+    // LET A, LET B and corresponding locations
+    assertEquals("Incorrect number of statements in long program", 131,
+        stmts.length);
+
+    // Check jump past display memory address
+    assertTrue("Missing jump instruction prior to display address",
+        stmts[122].getOpCodes()[0] instanceof JumpInstruction);
+    JumpInstruction jumpInst = (JumpInstruction) stmts[122].getOpCodes()[0];
+    assertEquals("Jump not correct prior to display address", 0344,
+        jumpInst.getType().getOpCode());
+    assertEquals("Jump target not correct prior to display address", 0204,
+        jumpInst.getDestinationAddress());
+
+    // Check NOOP in 0177, display, and overflow addresses
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[123].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[124].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[125].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[126].getOpCodes()[0].getFormattedOp());
+    assertEquals("NOOP not set in display address", "0300",
+        stmts[127].getOpCodes()[0].getFormattedOp());
+
+    // Check moved assignments past display address
+    assertEquals("Missing assignment instruction after display address", 2,
+        stmts[129].getOpCodes().length);
+    assertEquals("Assignment to A not correct after move past display address",
+        "0023",
+        stmts[129].getOpCodes()[0].getFormattedOp());
+    assertEquals(
+        "Assignment value to A not correct after move past display address",
+        "0100",
+        stmts[129].getOpCodes()[1].getFormattedOp());
+
+  }
+
 }

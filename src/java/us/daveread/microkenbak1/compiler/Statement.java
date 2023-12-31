@@ -1,5 +1,6 @@
 package us.daveread.microkenbak1.compiler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +27,11 @@ public class Statement {
   private final static Logger LOG;
 
   /**
+   * The original lexemes for the statment.
+   */
+  private String[] originalLexemes;
+
+  /**
    * The bytes representing the operations on the microKenbak-1
    */
   private List<OpCodes> programBytes;
@@ -45,6 +51,8 @@ public class Statement {
    *          The lexemes making up one statement
    */
   public Statement(String[] lexemes) {
+    originalLexemes = lexemes;
+
     programBytes = new ArrayList<>();
 
     convertToInstructions(lexemes);
@@ -89,6 +97,12 @@ public class Statement {
       case "HALT":
         handleHalt();
         break;
+      case "BITSHIFT":
+        handleBitshift(lexemes);
+        break;
+      case "NOOP":
+        handleNoOp();
+        break;
       default:
         throw new IllegalStateException("Undefined keyword: " + lexemes[0]);
     }
@@ -119,12 +133,39 @@ public class Statement {
    *          The lexemes making up one statement
    */
   public void handleAssignment(String[] lexemes) {
-    if (lexemes.length != 4 || !lexemes[2].equals("=")) {
-      throw new IllegalStateException("LET requires variable, =, and value");
+    if (lexemes.length != 4 && lexemes.length != 5) {
+      throw new IllegalStateException(
+          "LET requires variable, =, optional VALUEIN, and value");
+    }
+
+    if (!lexemes[2].equals("=")) {
+      throw new IllegalStateException(
+          "LET requires variable, =, optional VALUEIN, and value");
+    }
+
+    boolean isValueIn = false;
+    int valuePosition = 3;
+    String value;
+
+    if (lexemes.length == 5) {
+      isValueIn = true;
+      valuePosition = 4;
+    }
+
+    if (isValueIn && !lexemes[3].toUpperCase().equals("VALUEIN")) {
+      throw new IllegalStateException(
+          "LET requires variable, =, optional VALUEIN, and value");
     }
 
     verifyVariableName(lexemes[1]);
-    verifyByteValue(lexemes[3]);
+
+    value = lexemes[valuePosition];
+
+    if (isValueIn) {
+      value = translateMemLocationName(value);
+    }
+
+    verifyByteValue(value);
 
     int opCode;
 
@@ -143,10 +184,14 @@ public class Statement {
             "Undefined variable name: " + lexemes[1]);
     }
 
+    if (isValueIn) {
+      opCode += 1;
+    }
+
     OpCodes inst = new OperationInstruction(opCode);
     add(inst);
 
-    inst = new OperationInstruction(Integer.decode(lexemes[3]));
+    inst = new OperationInstruction(Integer.decode(value));
     add(inst);
   }
 
@@ -506,6 +551,72 @@ public class Statement {
   }
 
   /**
+   * Generate OpCodes for bitshifting.
+   */
+  public void handleBitshift(String[] lexemes) {
+    int bitCount = 1;
+    String variable;
+    String direction;
+
+    if (lexemes.length < 3 || lexemes.length > 4) {
+      throw new IllegalStateException(
+          "BITSHIFT requires variable, direction, and optional bit_count (1 is the default)");
+    }
+
+    variable = lexemes[1].toUpperCase();
+    direction = lexemes[2].toUpperCase();
+
+    if (variable.length() != 1 || "AB".indexOf(variable) == -1) {
+      throw new IllegalStateException(
+          "Unsupported variable value [" + lexemes[1]
+              + "] in BITSHIFT - only variables A and B are supported");
+    }
+
+    if (!direction.equals("LEFT") && !direction.equals("RIGHT")) {
+      throw new IllegalStateException(
+          "Unsupported direction [" + lexemes[2]
+              + "] in BITSHIFT - must be LEFT or RIGHT");
+    }
+
+    if (lexemes.length == 4) {
+      try {
+        bitCount = Integer.decode(lexemes[3]);
+        if (bitCount < 1 || bitCount > 4) {
+          throw new IllegalStateException("Unsupported bit count [ " + bitCount
+              + "] in BITSHIFT - limited to 1 to 4 bits");
+        }
+      } catch (NumberFormatException nfe) {
+        throw new IllegalStateException(
+            "Unsupported bit count [" + lexemes[3]
+                + "] in BITSHIFT - must be a number in the range 1 to 4");
+      }
+    }
+
+    int opCode = 1;
+
+    if (direction.equals("LEFT")) {
+      opCode += 0200;
+    }
+
+    if (variable.equals("B")) {
+      opCode += 040;
+    }
+
+    if (bitCount < 4) {
+      opCode += bitCount * 010;
+    }
+
+    add(new OperationInstruction(opCode));
+  }
+
+  /**
+   * Generate OpCodes for No Operation
+   */
+  public void handleNoOp() {
+    add(new OperationInstruction(0300));
+  }
+
+  /**
    * Verify that a string contains a legal octal byte value ("0" through "0377")
    * 
    * @param value
@@ -593,5 +704,31 @@ public class Statement {
    */
   public OpCodes[] getOpCodes() {
     return programBytes.toArray(new OpCodes[programBytes.size()]);
+  }
+
+  /**
+   * Get the lexemes for the statement.
+   * 
+   * @return The lexemes used to create the statement
+   */
+  public String[] getLexemes() {
+    return originalLexemes;
+  }
+
+  /**
+   * Get the statement based on the original lexemes. This may differ from the
+   * original source code due to removal of whitespace.
+   * 
+   * @return The formatted source statement
+   */
+  public String getFormattedStatement() {
+    StringBuffer statement = new StringBuffer();
+
+    for (String lexeme : originalLexemes) {
+      statement.append(lexeme);
+      statement.append(" ");
+    }
+
+    return statement.toString().trim();
   }
 }
