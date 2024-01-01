@@ -18,7 +18,7 @@ and 017
 # Place the random value in b
 memcopy a to b
 
-# Set yellow LEDs based on random number
+# Set yellow LEDs based on random number in b
 let a = 0220
 syscall
 
