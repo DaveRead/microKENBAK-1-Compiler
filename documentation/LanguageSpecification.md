@@ -22,7 +22,7 @@ Keywords are not case sensitive. LABEL, label, and Label as equivalent.
 
 The complete list of keywords are:
 
-`ADD, ADDRESSIN, FROM, GOTO, HALT, IF, ISZERO, LABEL, LET, NOTZERO, SUBTRACT, SYSCALL, TO`
+`ADD, ADDRESSIN, BITSHIFT, FROM, GOTO, HALT, IF, ISZERO, LABEL, LEFT, LET, NOTZERO, RIGHT, SUBTRACT, SYSCALL, TO, VALUEIN`
 
 ##Variables
 The first three bytes of memory serve as registers for operations and are referred to as `A`, `B`, and `X`. Those names are used in KBlang to read and write values to these locations. These are the only variables used in the language.
@@ -48,14 +48,23 @@ The `LET` statement is used for assignment. The form is:
 
 `LET` *variable_name* `=` *value*
 
+or
+
+`LET` *variable_name* `= VALUEIN` *memory_location*
+
+
 The *variable_name* must be one of: `A, B, X`
 
 The *value* must be an octal value in the range of 0 to 0377
 
+The *memory_location* must be a memory address on the range 0 to 0377 or a mnemonic name
+
 ###Examples
 	LET A = 043
 	let B = 0177
-
+	let X = VALUEIN DISPLAY
+	let a = valuein 0377
+	
 ##Labels
 A label serves as a location for a jump. It is a name representing a memory location. The form is:
 
@@ -81,19 +90,20 @@ The *label_name* must be defined elsewhere in the program using a `LABEL` statem
 ##Conditional Jump
 **Currently only two of the KENBAK-1 conditional operations are supported: equal to zero and not equal to zero.**
 
-The `IF` statement is used for conditional jumps. The form is:
+The `IF` statement is used for conditional jumps. It can be used based on a variable's value being 0 or non=zero. It can also be used to jump based on whether a variable overflow (carry) flag is set (e.g., on by the last add or subtract done using the variable). The form is:
 
 `IF` *variable_name* *test_type* `GOTO` *label_name*
 
 The *variable_name* must be one of `A, B, X` 
 
-The *test_type* must be one of `ISZERO` or `NOTZERO`
+The *test_type* must be one of `ISZERO`, `NOTZERO`, or `OVERFLOW`
 
 The *label_name* must be defined elsewhere in the program using a `LABEL` statement
 
 ###Examples
 	IF A NOTZERO GOTO Top`
 	if b iszero goto beginLoop`
+	if a overflow goto handleOverflow
 
 ##Copy Memory Byte Values
 The `MEMCOPY` statement is used to copy a variable's value to a memory location. There are two forms, depending on how the destination value is interpreted. The forms are:
@@ -106,7 +116,7 @@ or
 
 The *variable_name* must be one of `A, B, X` 
 
-The *destination* must be an octal address, a variable name, or a mnemonic location name 
+The *destination* must be a memory address, a variable name, or a mnemonic location name 
 
 In the first form, the address to be written is supplied directly. In the second form, the address to be written is contained within the supplied address.
 
@@ -163,7 +173,6 @@ The *value* must be an octal value in the range of 0 to 0377
 	and 0376 # Keep upper 7 bits
 
 ##Bitwise OR
-
 The value in the variable A (memory location 0) can be bitwise ORed with another value. The result is placed in A, replacing its original value. The form is:
 
 `OR *value*`
@@ -173,6 +182,38 @@ The *value* must be an octal value in the range of 0 to 0377
 ###Examples
 	OR 0340 # Force upper 4 bits on
 	or 07 # Force lower 3 bits on
+
+
+##Bit shift
+**Only the A and B variables may be shifted and shifts are limited to 1 to 4 bits.**
+
+The value in the variable (A or B) are shifted 1 to 4 bits to the left or right. The update is made in place, changing variable's value directly. The form is:
+
+`BITSHIFT *variable_name* *direction* *bit_count*`
+
+The *variable_name* must be A or B
+
+The *direction* must be RIGHT (toward LSB) or LEFT (toward MSB)
+
+The *bit_count* value is optional and must be in the range 1 to 4 (1 is the default)
+
+Note that a left shift sets bit 0 to 0, while a right shift retains the value in bit 7 (e.g., performs a signed right shift). If an unsigned right shift is desired it can be approximated by using register A to perform a one-bit right shift and then ANDing the value with 0177. 
+
+###Examples
+	BITSHIFT A RIGHT
+	BITSHIFT B LEFT 3
+	bitshift a left 2
+---
+	# Unsigned right shift of 3 bits (must use variable A)
+	bitshift a right 1
+	and 0177
+	bitshift a right 2
+---
+
+##Halt program
+The `HALT` statement is used to stop the program's execution. This sends the instruction value of 0000. The form is:
+
+`HALT`
 
 ##System call (microKENBAK-1 extension)
 The `SYSCALL` statement is used to invoke a system call. This sends an instruction value of 0360. The documentation for the microKENBAK-1 explains the functionality available, and typically involves the setting the A and, possibly, B, variables, then executing the 0360 instruction, and, for calls that produce values, reading the result from B. The form is:
@@ -190,8 +231,4 @@ The `SYSCALL` statement is used to invoke a system call. This sends an instructi
 	let b = 0377
 	syscall
 
-##Halt program
-The `HALT` statement is used to stop the program's execution. This sends the instruction value of 0000. The form is:
-
-`HALT`
 
