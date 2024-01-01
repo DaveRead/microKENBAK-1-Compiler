@@ -1,6 +1,5 @@
 package us.daveread.microkenbak1.compiler;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -230,7 +229,10 @@ public class Statement {
     boolean hasMemoryIndirection;
     int memoryLocationIndex;
 
-    if (lexemes.length < 4 && !lexemes[2].equalsIgnoreCase("to")) {
+    if (lexemes.length < 4 || lexemes.length > 5) {
+      throw new IllegalStateException(
+          "MEMCOPY requires variable, TO, optional ADDRESSIN, and memory_location");
+    } else if (lexemes.length == 4 && !lexemes[2].equalsIgnoreCase("to")) {
       throw new IllegalStateException(
           "MEMCOPY requires variable, TO, optional ADDRESSIN, and memory_location");
     } else if (lexemes.length == 5 && (!lexemes[2].equalsIgnoreCase("to")

@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
-import us.daveread.microkenbak1.compiler.instruction.JumpType;
 import us.daveread.microkenbak1.compiler.instruction.Label;
 import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 
@@ -123,7 +122,7 @@ public class Program {
    * 
    * @see #getInstructions(boolean)
    */
-  private void addMemoryLocations() {    
+  private void addMemoryLocations() {
     Map<String, Label> labelCache = new HashMap<>();
 
     int memLocation = 4;
@@ -148,7 +147,8 @@ public class Program {
 
         memLocation += inst.numMemoryCells();
 
-        // Need room (minimum 0176-0177) to add a jump past display address (0200)
+        // Need room (minimum 0176-0177) to add a jump past display address
+        // (0200)
         if (memLocation < 0176) {
           stmtJustBeforeDisplayAddress = stmt;
         }
@@ -168,25 +168,30 @@ public class Program {
             "Program is over 124 operating codes, but cannot find the instruction just before the display address");
       }
       OpCodes[] opCodes = statements.get(lastLocBeforeJump).getOpCodes();
-      int lastUsedAddressBeforeDisplay = opCodes[opCodes.length - 1].getMemoryLocation();
+      int lastUsedAddressBeforeDisplay = opCodes[opCodes.length - 1]
+          .getMemoryLocation();
       if (opCodes[opCodes.length - 1] instanceof Label) {
         lastUsedAddressBeforeDisplay--;
       }
       memLocation = lastUsedAddressBeforeDisplay;
       int insertLocation = lastLocBeforeJump + 1;
-      statements.add(insertLocation, new Statement("GOTO _SKIP_DISPLAY_ADDRESS_".split(" ")));
+      statements.add(insertLocation,
+          new Statement("GOTO _SKIP_DISPLAY_ADDRESS_".split(" ")));
       lastUsedAddressBeforeDisplay += 2;
-      // Fill memory locations in gap through overflow flag for X (0203) with NOOP
+      // Fill memory locations in gap through overflow flag for X (0203) with
+      // NOOP
       while (lastUsedAddressBeforeDisplay < 0203) {
         ++insertLocation;
         statements.add(insertLocation, new Statement("NOOP".split(" ")));
         ++lastUsedAddressBeforeDisplay;
       }
       ++insertLocation;
-      statements.add(insertLocation, new Statement("LABEL _SKIP_DISPLAY_ADDRESS_".split(" ")));
-      Label labelPastDisplay = (Label)statements.get(insertLocation).getOpCodes()[0];
+      statements.add(insertLocation,
+          new Statement("LABEL _SKIP_DISPLAY_ADDRESS_".split(" ")));
+      Label labelPastDisplay = (Label) statements.get(insertLocation)
+          .getOpCodes()[0];
       labelCache.put(labelPastDisplay.getName(), labelPastDisplay);
-      
+
       // Renumber memory locations
       memLocation++;
       for (int stmtLoc = lastLocBeforeJump + 1; stmtLoc < statements
@@ -198,7 +203,7 @@ public class Program {
         }
       }
     }
-    
+
     // Use cache to update jump instructions
     for (Statement stmt : statements) {
       OpCodes[] insts = stmt.getOpCodes();
@@ -230,8 +235,8 @@ public class Program {
         }
       }
     }
-    
+
     memoryLocationsSet = true;
 
-  }  
+  }
 }

@@ -1,7 +1,6 @@
 package us.daveread.microkenbak1.compiler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
