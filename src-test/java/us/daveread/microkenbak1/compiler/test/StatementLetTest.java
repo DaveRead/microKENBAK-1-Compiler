@@ -1,12 +1,10 @@
 package us.daveread.microkenbak1.compiler.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.Statement;
-import us.daveread.microkenbak1.compiler.instruction.Label;
 import us.daveread.microkenbak1.compiler.instruction.OpCodes;
 
 public class StatementLetTest {
@@ -17,9 +15,12 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0023", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0105", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0023", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0105", inst[1].getFormattedOp());
   }
 
   @Test
@@ -28,9 +29,12 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0024", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0105", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0024", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0105", inst[1].getFormattedOp());
   }
 
   @Test
@@ -39,9 +43,12 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0024", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0200", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0024", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0200", inst[1].getFormattedOp());
   }
 
   @Test
@@ -50,9 +57,12 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0123", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0010", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0123", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0010", inst[1].getFormattedOp());
   }
 
   @Test
@@ -61,9 +71,12 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0124", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0010", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0124", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0010", inst[1].getFormattedOp());
   }
 
   @Test
@@ -72,9 +85,26 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0124", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0377", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0124", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0377", inst[1].getFormattedOp());
+  }
+
+  @Test
+  public void testLetAssignMnemonicNameProgramCounterToX() {
+    String statement = "LET x = valuein p";
+    Statement stmt = new Statement(statement.split(" "));
+    OpCodes[] inst = stmt.getOpCodes();
+
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0224", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0003", inst[1].getFormattedOp());
   }
 
   @Test
@@ -83,20 +113,26 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0223", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0377", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0223", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0377", inst[1].getFormattedOp());
   }
-  
+
   @Test
   public void testLetAssignMemoryLocationValueToX() {
     String statement = "LET X = valuein 0377";
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0224", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0377", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0224", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0377", inst[1].getFormattedOp());
   }
 
   @Test
@@ -105,11 +141,14 @@ public class StatementLetTest {
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
 
-    assertEquals("Incorrect number of instructions in LET statement", 2, inst.length);
-    assertEquals("Incorrect first formatted operation for LET statement", "0224", inst[0].getFormattedOp());
-    assertEquals("Incorrect second formatted operation for LET statement", "0000", inst[1].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LET statement", 2,
+        inst.length);
+    assertEquals("Incorrect first formatted operation for LET statement",
+        "0224", inst[0].getFormattedOp());
+    assertEquals("Incorrect second formatted operation for LET statement",
+        "0000", inst[1].getFormattedOp());
   }
-  
+
   @Test(expected = IllegalStateException.class)
   public void testLetWithIncorrectIdentifier() {
     String statement = "LET F = 0237";
@@ -161,6 +200,12 @@ public class StatementLetTest {
   @Test(expected = IllegalStateException.class)
   public void testLetMultiCharacterIdentifier() {
     String statement = "LET BX = 0031";
+    new Statement(statement.split(" "));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testLetValueInMissingValueInKeyword() {
+    String statement = "LET A = OOPS 0377";
     new Statement(statement.split(" "));
   }
 }

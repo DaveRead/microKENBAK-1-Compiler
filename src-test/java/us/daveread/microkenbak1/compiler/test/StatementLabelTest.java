@@ -16,11 +16,14 @@ public class StatementLabelTest {
     String statement = "LABEL Top";
     Statement stmt = new Statement(statement.split(" "));
     OpCodes[] inst = stmt.getOpCodes();
-    assertEquals("Incorrect number of instructions in LABEL statement", 1, inst.length);
-    assertEquals("Incorrect name for LABEL statement", "Top", ((Label)inst[0]).getName());
-    assertNull("Incorrect formatted operation for LABEL statement", inst[0].getFormattedOp());
+    assertEquals("Incorrect number of instructions in LABEL statement", 1,
+        inst.length);
+    assertEquals("Incorrect name for LABEL statement", "Top",
+        ((Label) inst[0]).getName());
+    assertNull("Incorrect formatted operation for LABEL statement",
+        inst[0].getFormattedOp());
   }
-  
+
   @Test(expected = IllegalStateException.class)
   public void testLabelWithSpaces() {
     String statement = "LABEL Ok 12IsHere";

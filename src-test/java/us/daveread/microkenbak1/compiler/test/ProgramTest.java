@@ -1,5 +1,6 @@
 package us.daveread.microkenbak1.compiler.test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -984,4 +985,32 @@ public class ProgramTest {
 
   }
 
+  @Test
+  public void testGetLexemes() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("BITSHIFT B LEFT 4".split(" ")));
+
+    Statement stmt = prog.getStatements()[0];
+
+    String[] lexemes = stmt.getLexemes();
+
+    String[] expected = { "BITSHIFT", "B", "LEFT", "4" };
+
+    assertArrayEquals("Incorrect lexemes", expected,
+        lexemes);
+
+  }
+
+  @Test
+  public void getFormattedStatement() {
+    Program prog = new Program();
+    prog.addStatement(new Statement("IF B NOTZERO GOTO TopLoop".split(" ")));
+    prog.addStatement(new Statement("LABEL TopLoop".split(" ")));
+
+    String statement = prog.getStatements()[0].getFormattedStatement();
+
+    String expected = "IF B NOTZERO GOTO TopLoop";
+
+    assertEquals("Incorrect formatted statement", expected, statement);
+  }
 }
