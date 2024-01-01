@@ -276,8 +276,18 @@
 			<arg value="${output}"/>
 		</java>
 	</target>
-    <!-- runs the program using the program's generated JAR -->
 
+	<!-- runs the program and generates an HTML output file instead of uploadable operating codes -->
+	<target name="runHtml" depends="dist">
+		<java classname="${mainJavaClass}" fork="true">
+			<classpath refid="runtime.class.path" />
+			<classpath path="${distDir}/${jarFile}"/>
+			<arg value="${input}"/>
+			<arg value="--AsHTML"/>
+		</java>
+	</target>
+
+    <!-- runs the program using the program's generated JAR -->
     <target name="run-jar" depends="dist">
         <java classname="${mainJavaClass}" fork="true">
             <classpath refid="runtime.class.path"/>
