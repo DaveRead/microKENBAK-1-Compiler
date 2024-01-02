@@ -230,5 +230,3 @@ The `SYSCALL` statement is used to invoke a system call. This sends an instructi
 	let a = 0222
 	let b = 0377
 	syscall
-
-
