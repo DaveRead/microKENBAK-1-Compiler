@@ -160,7 +160,7 @@ public class Compiler {
     page.append("<h1>Operation Codes for " + name + "</h1>\n");
     page.append("  <table border=\"1\">\n");
     page.append(
-        "    <tr><th>Statement Number</th><th>Statement</th><th>Op Codes and Values</th></tr>\n");
+        "    <tr><th>Statement Number</th><th>Statement</th><th>Memory Location, Op Codes, and Values</th></tr>\n");
 
     int statementCount = 1;
     for (Statement stmt : program.getStatements()) {
