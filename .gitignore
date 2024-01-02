@@ -12,4 +12,5 @@ generated/
 DS_Store
 .DS_Store
 *.ops
-
+ExternalAssets
+samples/*.html
