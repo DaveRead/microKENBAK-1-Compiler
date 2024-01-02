@@ -1,4 +1,5 @@
 # Program to light LEDs Cylone-style (back and forth) using bitshifting
+# Video of the running program: https://youtu.be/6l_J0V5BRH0
 
 # Uses memory location 0376 to hold value for yellow LEDs
 # Uses memory location 0375 to hold direction of bitshifting for yellow LEDs

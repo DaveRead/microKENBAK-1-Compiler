@@ -1,4 +1,6 @@
 # Program to display counting from 0 to 255 and back to 0 on the microKENBAK-1's white LEDs
+# Video of the running program: https://youtu.be/4q9Pm_E_CPg
+
 let b = 0
 
 # Counting up from 0 to 255

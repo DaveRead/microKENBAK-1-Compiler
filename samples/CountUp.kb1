@@ -1,7 +1,7 @@
 # Program to repeatedly count from 0 to 255, displaying each value on the LEDs
 
 # Set A and B for program delay syscall  
-let a = 0222  
+let a = 0377  
 let b = 0200  
 
 # Initialize X  
