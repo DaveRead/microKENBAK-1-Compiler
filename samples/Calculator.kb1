@@ -1,0 +1,137 @@
+# Program to calculate sums and differences
+
+# After starting the program. 
+# 1. The INPUT LED will light 
+# 2. Enter 0 or 1 (non-zero) to choose addition or subtraction, respectively
+# 3. Press Start
+# 4. The INPUT and ADDRESS LEDs will light
+# 5. Enter the first operand value
+# 6. Press Start
+# 7. The INPUT, ADDRESS, and MEMORY LEDs will light
+# 8. Enter the second operand value
+# 9. Press Start
+# 10. The result will be displayed and the RUN LED will flash several times.
+# 10a. If an overflow/carry occurs, all the output LEDs will flash several times
+# 11. Press Start to return to step 1
+
+label top
+
+# Light the INPUT LED
+let a = 0220
+let b = 1
+syscall
+
+# clear input and output
+let b = 0
+memcopy b to input
+memcopy b to display
+
+# Stop for input
+halt
+
+# Place input into X
+let x = valuein input
+
+# Light the INPUT and ADDRESS LEDs
+let a = 0220
+let b = 3
+syscall
+
+# clear input and output
+let b = 0
+memcopy b to input
+memcopy b to display
+
+# Stop for input
+halt
+
+# Place input into address 0376
+let a = valuein input
+memcopy a to 0376
+
+# Light the INPUT, ADDRESS, and MEMORY LEDs
+let a = 0220
+let b = 7
+syscall
+
+# clear input and output
+let b = 0
+memcopy b to input
+memcopy b to display
+
+# Stop for input
+halt
+
+# Place input into address 0376
+let b = valuein input
+
+# Copy first value into a
+let a = valuein 0376
+
+if x iszero goto addition
+
+subtract b from a
+goto output
+
+label addition
+add b to a
+
+label output
+if a overflow goto overflowsignal
+
+# show result
+memcopy a to display
+
+# Flash RUN LED
+let x = 8
+
+label topresultloop
+let a = 0220
+let b = 1
+syscall
+
+let a = 0222
+let b = 0200
+syscall
+
+let a = 0220
+let b = 0
+syscall
+
+let a = 0222
+let b = 0200
+syscall
+
+subtract 1 from x
+if x notzero goto topresultloop
+
+goto end
+
+label overflowsignal
+let a = 0222
+let x = 8
+
+label topoverflowloop
+
+let b = 0377
+memcopy b to display
+
+# Delay 0200 ms
+let b = 0200
+syscall
+
+let b = 0
+memcopy b to display
+
+# Delay 0200 ms
+let b = 0200
+syscall
+
+subtract 1 from x
+if x notzero goto topoverflowloop
+
+label end
+
+halt
+
+goto top
