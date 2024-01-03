@@ -119,7 +119,7 @@ syscall
 label DELAY
 # Set A and B for program delay syscall  
 let a = 0222  
-let b = 0377  
+let b = 0140  
 syscall
 
 goto TOP
