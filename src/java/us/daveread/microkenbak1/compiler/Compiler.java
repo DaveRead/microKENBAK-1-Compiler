@@ -163,7 +163,9 @@ public class Compiler {
    */
   public String getHtml(String name, Program program) {
     StringBuffer page = new StringBuffer();
-
+    String greenBackground = "#d0f0d0";
+    boolean isGreenBackground = true;
+    String cellBgColor = "";
     page.append("<html>\n");
     page.append("<head><title>" + name + "</title></head>\n");
 
@@ -175,14 +177,18 @@ public class Compiler {
 
     int statementCount = 1;
     for (Statement stmt : program.getStatements()) {
+      cellBgColor = isGreenBackground ? greenBackground : "#ffffff";
+      isGreenBackground = !isGreenBackground;
       page.append("    <tr>\n");
-      page.append("      <td>" + statementCount + "</td>\n");
-      page.append("      <td>" + stmt.getFormattedStatement() + "</td>\n");
-      page.append("      <td>");
+      page.append("      <td bgcolor=\"" + cellBgColor + "\">" + statementCount
+          + "</td>\n");
+      page.append("      <td bgcolor=\"" + cellBgColor + "\">"
+          + stmt.getFormattedStatement() + "</td>\n");
+      page.append("      <td bgcolor=\"" + cellBgColor + "\">");
       page.append("        <table border=\"0\">\n");
       OpCodes[] opCodes = stmt.getOpCodes();
       for (OpCodes opCode : opCodes) {
-        page.append("        <tr><td>"
+        page.append("        <tr><td  bgcolor=\"" + cellBgColor + "\">"
             + String.format("%04o", opCode.getMemoryLocation()) + ": ");
         if (opCode.getFormattedOp() == null) {
           page.append(opCode.toString());
@@ -194,7 +200,7 @@ public class Compiler {
           page.append(splitInstAndMem[0]);
           page.append(formatAsBinaryHtml(op));
           page.append("</td></tr>\n");
-          page.append("        <tr><td>"
+          page.append("        <tr><td bgcolor=\"" + cellBgColor + "\">"
               + String.format("%04o", opCode.getMemoryLocation() + 1) + ": ");
           page.append(splitInstAndMem[1]);
           page.append(formatAsBinaryHtml(address));
