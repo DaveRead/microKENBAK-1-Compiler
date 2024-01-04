@@ -8,7 +8,9 @@ import java.io.LineNumberReader;
 
 import org.apache.log4j.Logger;
 
+import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
 import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.OperationInstruction;
 
 /**
  * compiler to convert the high-level syntax to the microKenbek-1 operating
@@ -150,6 +152,15 @@ public class Compiler {
     }
   }
 
+  /**
+   * Get an HTML string containing the program listing.
+   * 
+   * @param name
+   *          The name of the program to compile
+   * @param program
+   *          THe resulting compiled program
+   * @return The HTML string
+   */
   public String getHtml(String name, Program program) {
     StringBuffer page = new StringBuffer();
 
@@ -175,8 +186,25 @@ public class Compiler {
             + String.format("%04o", opCode.getMemoryLocation()) + ": ");
         if (opCode.getFormattedOp() == null) {
           page.append(opCode.toString());
+        } else if (opCode instanceof JumpInstruction) {
+          String instructionAndMemAddress = opCode.getFormattedOp();
+          String[] splitInstAndMem = instructionAndMemAddress.split("\n");
+          int op = ((JumpInstruction) opCode).getType().getOpCode();
+          int address = ((JumpInstruction) opCode).getDestinationAddress();
+          page.append(splitInstAndMem[0]);
+          page.append(formatAsBinaryHtml(op));
+          page.append("</td></tr>\n");
+          page.append("        <tr><td>"
+              + String.format("%04o", opCode.getMemoryLocation() + 1) + ": ");
+          page.append(splitInstAndMem[1]);
+          page.append(formatAsBinaryHtml(address));
         } else {
           page.append(opCode.getFormattedOp());
+          // Display op code in binary as well
+          if (opCode instanceof OperationInstruction) {
+            int op = ((OperationInstruction) opCode).getOperationCode();
+            page.append(formatAsBinaryHtml(op));
+          }
         }
         page.append("</td></tr>\n");
       }
@@ -189,6 +217,36 @@ public class Compiler {
     page.append("</body>\n");
 
     return page.toString();
+  }
+
+  /**
+   * Create a HTML formatted binary number color-coded by the octal components.
+   * 
+   * @param value
+   *          The value to format
+   * @return The HTML string
+   */
+  String formatAsBinaryHtml(int value) {
+    StringBuffer formatted = new StringBuffer();
+
+    String binary = String.format("%8s", Integer.toBinaryString(value))
+        .replace(' ', '0');
+    formatted.append(" (");
+    formatted.append(
+        "<font color=\"#ffffff\" style=\"background-color: #cca43b;\">&nbsp;");// 018e42
+    formatted.append(binary.substring(0, 2));
+    formatted.append("&nbsp;</font>");
+    formatted.append(
+        "<font color=\"#ffffff\" style=\"background-color: #0075f2;\">&nbsp;");
+    formatted.append(binary.substring(2, 5));
+    formatted.append("&nbsp;</font>");
+    formatted.append(
+        "<font color=\"#ffffff\" style=\"background-color: #d81e5b;\">&nbsp;");
+    formatted.append(binary.substring(5));
+    formatted.append("&nbsp;</font>");
+    formatted.append(")");
+
+    return formatted.toString();
   }
 
   /**
