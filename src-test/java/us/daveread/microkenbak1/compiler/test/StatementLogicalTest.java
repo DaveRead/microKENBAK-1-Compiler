@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.Statement;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 public class StatementLogicalTest {
 
@@ -13,28 +13,28 @@ public class StatementLogicalTest {
   public void testAndLiteral() {
     String statement = "AND 0177";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in AND statement", 2,
         inst.length);
     assertEquals("Incorrect first formatted operation for AND statement",
-        "0323", inst[0].getFormattedOp());
+        "0323", inst[0].getFormattedByte());
     assertEquals("Incorrect second formatted operation for AND statement",
-        "0177", inst[1].getFormattedOp());
+        "0177", inst[1].getFormattedByte());
   }
 
   @Test
   public void testOrLiteral() {
     String statement = "OR 0376";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in OR statement", 2,
         inst.length);
     assertEquals("Incorrect first formatted operation for OR statement", "0303",
-        inst[0].getFormattedOp());
+        inst[0].getFormattedByte());
     assertEquals("Incorrect second formatted operation for OR statement",
-        "0376", inst[1].getFormattedOp());
+        "0376", inst[1].getFormattedByte());
   }
 
   @Test(expected = IllegalStateException.class)

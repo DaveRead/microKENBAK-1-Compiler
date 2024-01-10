@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
 import us.daveread.microkenbak1.compiler.instruction.JumpType;
 import us.daveread.microkenbak1.compiler.instruction.Label;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 import us.daveread.microkenbak1.compiler.instruction.OperationInstruction;
 
 /**
@@ -33,7 +33,7 @@ public class Statement {
   /**
    * The bytes representing the operations on the microKenbak-1
    */
-  private List<OpCodes> programBytes;
+  private List<ByteContent> programBytes;
 
   /**
    * Set up the logger instance.
@@ -102,6 +102,9 @@ public class Statement {
       case "NOOP":
         handleNoOp();
         break;
+      case "BYTES":
+        handleRawByteValue(lexemes);
+        break;
       default:
         throw new IllegalStateException("Undefined keyword: " + lexemes[0]);
     }
@@ -111,7 +114,7 @@ public class Statement {
    * Generate OpCodes for a label.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters for the label statement
    */
   public void handleLabel(String[] lexemes) {
     if (lexemes.length == 1) {
@@ -129,7 +132,7 @@ public class Statement {
    * Generate OpCodes for an assignment.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the assignment operation
    */
   public void handleAssignment(String[] lexemes) {
     if (lexemes.length != 4 && lexemes.length != 5) {
@@ -187,7 +190,7 @@ public class Statement {
       opCode += 1;
     }
 
-    OpCodes inst = new OperationInstruction(opCode);
+    ByteContent inst = new OperationInstruction(opCode);
     add(inst);
 
     inst = new OperationInstruction(Integer.decode(value));
@@ -198,7 +201,7 @@ public class Statement {
    * Generate OpCodes for an unconditional jump (goto).
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the unconditional jump operation
    */
   public void handleJump(String[] lexemes) {
     if (lexemes.length == 1) {
@@ -223,7 +226,7 @@ public class Statement {
    * Generate OpCodes for a copying a variable's value to a memory location.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the memcopy operation
    */
   public void handleMemCopy(String[] lexemes) {
     boolean hasMemoryIndirection;
@@ -271,7 +274,7 @@ public class Statement {
       opCode |= 1;
     }
 
-    OpCodes inst = new OperationInstruction(opCode);
+    ByteContent inst = new OperationInstruction(opCode);
     add(inst);
 
     inst = new OperationInstruction(
@@ -283,7 +286,7 @@ public class Statement {
    * Generate OpCodes for bitwise AND and OR.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the logic operation
    */
   public void handleLogical(String[] lexemes) {
     if (lexemes.length != 2) {
@@ -315,7 +318,7 @@ public class Statement {
    * Generate OpCodes for addition.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the addition operation
    */
   public void handleAdd(String[] lexemes) {
     if (lexemes.length != 4 || !lexemes[2].equalsIgnoreCase("TO")) {
@@ -375,7 +378,7 @@ public class Statement {
       opCode += 1;
     }
 
-    OpCodes inst = new OperationInstruction(opCode);
+    ByteContent inst = new OperationInstruction(opCode);
     add(inst);
 
     if (hasMemoryIndirection) {
@@ -390,7 +393,7 @@ public class Statement {
    * Generate OpCodes for subtraction.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the subtraction operation
    */
   public void handleSubtract(String[] lexemes) {
     if (lexemes.length != 4 || !lexemes[2].equalsIgnoreCase("FROM")) {
@@ -451,7 +454,7 @@ public class Statement {
       opCode += 1;
     }
 
-    OpCodes inst = new OperationInstruction(opCode);
+    ByteContent inst = new OperationInstruction(opCode);
     add(inst);
 
     if (hasMemoryIndirection) {
@@ -466,7 +469,7 @@ public class Statement {
    * Generate OpCodes for a decision.
    * 
    * @param lexemes
-   *          The lexemes making up one statement
+   *          The parameters of the if statement
    */
   public void handleIf(String[] lexemes) {
     if (lexemes.length != 5 || !lexemes[3].equalsIgnoreCase("GOTO")) {
@@ -554,6 +557,9 @@ public class Statement {
 
   /**
    * Generate OpCodes for bitshifting.
+   * 
+   * @param lexemes
+   *          The parameters for the bitshift operation
    */
   public void handleBitshift(String[] lexemes) {
     int bitCount = 1;
@@ -590,7 +596,8 @@ public class Statement {
       } catch (NumberFormatException nfe) {
         throw new IllegalStateException(
             "Unsupported bit count [" + lexemes[3]
-                + "] in BITSHIFT - must be a number in the range 1 to 4");
+                + "] in BITSHIFT - must be a number in the range 1 to 4",
+            nfe);
       }
     }
 
@@ -616,6 +623,24 @@ public class Statement {
    */
   public void handleNoOp() {
     add(new OperationInstruction(0300));
+  }
+
+  /**
+   * Place supplied byte value(s) directly in the program. More than one value may be supplied, they will be added to the program in the supplied order.
+   * 
+   * @param lexemes
+   *          The byte value to insert
+   */
+  public void handleRawByteValue(String[] lexemes) {
+    if (lexemes.length < 2) {
+      throw new IllegalStateException("BYTE requires at least one numeric value (0-255)");
+    }
+
+    for (int i = 1;i < lexemes.length;i++) {
+      verifyByteValue(lexemes[i]);
+
+      add(new OperationInstruction(Integer.decode(lexemes[i])));
+    }
   }
 
   /**
@@ -695,7 +720,7 @@ public class Statement {
    * @param opCodes
    *          microKenbek-1 operating codes (bytes)
    */
-  public void add(OpCodes... opCodes) {
+  public void add(ByteContent... opCodes) {
     programBytes.addAll(Arrays.asList(opCodes));
   }
 
@@ -704,8 +729,8 @@ public class Statement {
    * 
    * @return The operating codes for the statement
    */
-  public OpCodes[] getOpCodes() {
-    return programBytes.toArray(new OpCodes[programBytes.size()]);
+  public ByteContent[] getOpCodes() {
+    return programBytes.toArray(new ByteContent[programBytes.size()]);
   }
 
   /**

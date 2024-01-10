@@ -9,7 +9,7 @@ import java.io.LineNumberReader;
 import org.apache.log4j.Logger;
 
 import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 import us.daveread.microkenbak1.compiler.instruction.OperationInstruction;
 
 /**
@@ -186,14 +186,14 @@ public class Compiler {
           + stmt.getFormattedStatement() + "</td>\n");
       page.append("      <td bgcolor=\"" + cellBgColor + "\">");
       page.append("        <table border=\"0\">\n");
-      OpCodes[] opCodes = stmt.getOpCodes();
-      for (OpCodes opCode : opCodes) {
+      ByteContent[] opCodes = stmt.getOpCodes();
+      for (ByteContent opCode : opCodes) {
         page.append("        <tr><td  bgcolor=\"" + cellBgColor + "\">"
             + String.format("%04o", opCode.getMemoryLocation()) + ": ");
-        if (opCode.getFormattedOp() == null) {
+        if (opCode.getFormattedByte() == null) {
           page.append(opCode.toString());
         } else if (opCode instanceof JumpInstruction) {
-          String instructionAndMemAddress = opCode.getFormattedOp();
+          String instructionAndMemAddress = opCode.getFormattedByte();
           String[] splitInstAndMem = instructionAndMemAddress.split("\n");
           int op = ((JumpInstruction) opCode).getType().getOpCode();
           int address = ((JumpInstruction) opCode).getDestinationAddress();
@@ -205,7 +205,7 @@ public class Compiler {
           page.append(splitInstAndMem[1]);
           page.append(formatAsBinaryHtml(address));
         } else {
-          page.append(opCode.getFormattedOp());
+          page.append(opCode.getFormattedByte());
           // Display op code in binary as well
           if (opCode instanceof OperationInstruction) {
             int op = ((OperationInstruction) opCode).getOperationCode();

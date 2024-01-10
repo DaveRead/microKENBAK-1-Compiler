@@ -41,6 +41,6 @@ public class LabelTest {
    */
   @Test
   public void testGetFormattedOp() {
-    assertNull("Label op is not null", testLabel.getFormattedOp());
+    assertNull("Label op is not null", testLabel.getFormattedByte());
   }
 }

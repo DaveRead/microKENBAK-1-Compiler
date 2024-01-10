@@ -6,7 +6,7 @@ package us.daveread.microkenbak1.compiler.instruction;
  * @author readda
  *
  */
-public class Label extends OpCodes {
+public class Label extends ByteContent {
   /**
    * The label name. Labels are case sensitive and immutable. Labels act as
    * place holders in the compiled program, representing a memory location that
@@ -80,7 +80,7 @@ public class Label extends OpCodes {
    * There is no instruction for a label
    */
   @Override
-  public String getFormattedOp() {
+  public String getFormattedByte() {
     return null; // "(label " + getName() + ")";
   }
 

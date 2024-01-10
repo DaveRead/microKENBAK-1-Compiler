@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.Statement;
 import us.daveread.microkenbak1.compiler.instruction.Label;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 public class StatementLabelTest {
 
@@ -15,13 +15,13 @@ public class StatementLabelTest {
   public void testLabel() {
     String statement = "LABEL Top";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
     assertEquals("Incorrect number of instructions in LABEL statement", 1,
         inst.length);
     assertEquals("Incorrect name for LABEL statement", "Top",
         ((Label) inst[0]).getName());
     assertNull("Incorrect formatted operation for LABEL statement",
-        inst[0].getFormattedOp());
+        inst[0].getFormattedByte());
   }
 
   @Test(expected = IllegalStateException.class)

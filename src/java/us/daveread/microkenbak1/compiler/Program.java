@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
 import us.daveread.microkenbak1.compiler.instruction.Label;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 /**
  * Contains all the statements making up the program.
@@ -99,10 +99,10 @@ public class Program {
     sb.append("0004\n");
 
     for (Statement stmt : statements) {
-      OpCodes[] insts = stmt.getOpCodes();
-      for (OpCodes inst : insts) {
+      ByteContent[] insts = stmt.getOpCodes();
+      for (ByteContent inst : insts) {
         String op;
-        if ((op = inst.getFormattedOp()) != null) {
+        if ((op = inst.getFormattedByte()) != null) {
           sb.append(op);
           sb.append('\n');
         }
@@ -128,9 +128,9 @@ public class Program {
     int memLocation = 4;
     Statement stmtJustBeforeDisplayAddress = null;
     for (Statement stmt : statements) {
-      OpCodes[] insts = stmt.getOpCodes();
-      for (OpCodes inst : insts) {
-        inst.setMemoryLocation(memLocation);
+      ByteContent[] insts = stmt.getOpCodes();
+      for (ByteContent inst : insts) {
+        inst.setLocation(memLocation);
 
         if (inst instanceof Label) {
           Label label = (Label) inst;
@@ -167,7 +167,7 @@ public class Program {
         throw new IllegalStateException(
             "Program is over 124 operating codes, but cannot find the instruction just before the display address");
       }
-      OpCodes[] opCodes = statements.get(lastLocBeforeJump).getOpCodes();
+      ByteContent[] opCodes = statements.get(lastLocBeforeJump).getOpCodes();
       int lastUsedAddressBeforeDisplay = opCodes[opCodes.length - 1]
           .getMemoryLocation();
       if (opCodes[opCodes.length - 1] instanceof Label) {
@@ -197,8 +197,8 @@ public class Program {
       for (int stmtLoc = lastLocBeforeJump + 1; stmtLoc < statements
           .size(); ++stmtLoc) {
         opCodes = statements.get(stmtLoc).getOpCodes();
-        for (OpCodes opCode : opCodes) {
-          opCode.setMemoryLocation(memLocation);
+        for (ByteContent opCode : opCodes) {
+          opCode.setLocation(memLocation);
           memLocation += opCode.numMemoryCells();
         }
       }
@@ -206,8 +206,8 @@ public class Program {
 
     // Use cache to update jump instructions
     for (Statement stmt : statements) {
-      OpCodes[] insts = stmt.getOpCodes();
-      for (OpCodes inst : insts) {
+      ByteContent[] insts = stmt.getOpCodes();
+      for (ByteContent inst : insts) {
         if (inst instanceof JumpInstruction) {
           JumpInstruction jump = (JumpInstruction) inst;
           String labelName = jump.getName();
@@ -224,8 +224,8 @@ public class Program {
 
     // Check for unused labels - generate warning messages
     for (Statement stmt : statements) {
-      OpCodes[] insts = stmt.getOpCodes();
-      for (OpCodes inst : insts) {
+      ByteContent[] insts = stmt.getOpCodes();
+      for (ByteContent inst : insts) {
         if (inst instanceof Label) {
           Label label = (Label) inst;
           if (!label.isUsed()) {
@@ -237,6 +237,5 @@ public class Program {
     }
 
     memoryLocationsSet = true;
-
   }
 }

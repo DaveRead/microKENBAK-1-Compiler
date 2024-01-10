@@ -1,0 +1,18 @@
+# Program to demonstrate use of inserting raw bytes
+
+# Generates random numbers in B and displays them on the LEDs with 250 ms delay
+
+label top
+
+# Set A for generating a random number (microKenbak-1 extension)
+let a = 021
+
+# Insert bytes to make syscall, generating the random number in B, 
+# then copy B to the LED display address (0200)
+BYTES 0360 0134 0200
+
+# Delay 250 ms (A->0222, B->0372 (250 decimal), then syscall (0360)
+BYTES 023 0222 0123 250 0360
+
+# Loop back to beginning
+goto top

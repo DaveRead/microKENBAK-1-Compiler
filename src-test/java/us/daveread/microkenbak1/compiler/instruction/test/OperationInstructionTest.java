@@ -42,9 +42,9 @@ public class OperationInstructionTest {
    */
   @Test
   public void testGetFormattedOp() {
-    testInstruction.setMemoryLocation(05);
+    testInstruction.setLocation(05);
     assertEquals("Incorrect formatted operation code", "0023",
-        testInstruction.getFormattedOp());
+        testInstruction.getFormattedByte());
   }
 
   /**
@@ -53,7 +53,7 @@ public class OperationInstructionTest {
    */
   @Test
   public void testToString() {
-    testInstruction.setMemoryLocation(05);
+    testInstruction.setLocation(05);
     assertEquals("Incorrect formatted operation code", "0005: 0023",
         testInstruction.toString());
   }

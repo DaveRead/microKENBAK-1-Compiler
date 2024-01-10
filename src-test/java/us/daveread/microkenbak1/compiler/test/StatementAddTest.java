@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.Statement;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 public class StatementAddTest {
 
@@ -13,42 +13,42 @@ public class StatementAddTest {
   public void testAddALiteral() {
     String statement = "ADD 1 TO A";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in ADD statement", 2,
         inst.length);
     assertEquals("Incorrect first formatted operation for ADD statement",
-        "0003", inst[0].getFormattedOp());
+        "0003", inst[0].getFormattedByte());
     assertEquals("Incorrect second formatted operation for AND statement",
-        "0001", inst[1].getFormattedOp());
+        "0001", inst[1].getFormattedByte());
   }
 
   @Test
   public void testAddBLiteral() {
     String statement = "ADD 010 TO B";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in ADD statement", 2,
         inst.length);
     assertEquals("Incorrect first formatted operation for ADD statement",
-        "0103", inst[0].getFormattedOp());
+        "0103", inst[0].getFormattedByte());
     assertEquals("Incorrect second formatted operation for AND statement",
-        "0010", inst[1].getFormattedOp());
+        "0010", inst[1].getFormattedByte());
   }
 
   @Test
   public void testAddXToB() {
     String statement = "ADD X TO B";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in ADD statement", 2,
         inst.length);
     assertEquals("Incorrect first formatted operation for ADD statement",
-        "0104", inst[0].getFormattedOp());
+        "0104", inst[0].getFormattedByte());
     assertEquals("Incorrect second formatted operation for AND statement",
-        "0002", inst[1].getFormattedOp());
+        "0002", inst[1].getFormattedByte());
   }
 
   @Test(expected = IllegalStateException.class)

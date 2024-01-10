@@ -40,9 +40,9 @@ public class JumpInstructionTest {
    */
   @Test
   public void testGetFormattedOpForUnconditionalJump() {
-    testInstruction.setMemoryLocation(045);
+    testInstruction.setLocation(045);
     testInstruction.setDestinationAddress(04);
     assertEquals("Incorrect formatted operation code", "0344\n0004",
-        testInstruction.getFormattedOp());
+        testInstruction.getFormattedByte());
   }
 }

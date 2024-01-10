@@ -230,3 +230,15 @@ The `SYSCALL` statement is used to invoke a system call. This sends an instructi
 	let a = 0222
 	let b = 0377
 	syscall
+
+##Raw byte value
+The `BYTES` statement is used to include raw byte values into the program. The statement expects one or more byte values to be supplied. Each will be placed sequentially in memory beginning at the location the statement is found in the program. The form is:
+
+`BYTES *byte_values*`
+
+The *byte_values* must be values in the range 0-255 (decimal) separated by spaces
+
+###Examples
+
+####Directly use the assign operation codes to assign decimal 10 to A (location 0)
+BYTES 023 012

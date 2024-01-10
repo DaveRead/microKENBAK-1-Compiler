@@ -11,7 +11,7 @@ import us.daveread.microkenbak1.compiler.Program;
 import us.daveread.microkenbak1.compiler.Statement;
 import us.daveread.microkenbak1.compiler.instruction.JumpInstruction;
 import us.daveread.microkenbak1.compiler.instruction.Label;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 /**
  * Unit tests for the Program class.
@@ -38,8 +38,8 @@ public class ProgramTest {
     int memoryLoc = 4;
 
     for (Statement stmt : stmts) {
-      for (OpCodes inst : stmt.getOpCodes()) {
-        inst.setMemoryLocation(memoryLoc);
+      for (ByteContent inst : stmt.getOpCodes()) {
+        inst.setLocation(memoryLoc);
         if (!(inst instanceof Label)) {
           memoryLoc++;
         }
@@ -48,7 +48,7 @@ public class ProgramTest {
 
     assertEquals("Incorrect ending memory location", 8, memoryLoc);
 
-    OpCodes[] inst = stmts[2].getOpCodes();
+    ByteContent[] inst = stmts[2].getOpCodes();
     assertEquals("Incorrect first formatted operation for second statement",
         "0006: 0123", inst[0].toString());
     assertEquals("Incorrect second formatted operation for second statement",
@@ -765,8 +765,8 @@ public class ProgramTest {
 
     for (int stmtCount = 119; stmtCount < stmts.length; ++stmtCount) {
       System.out.println("Statement [" + stmtCount + "] ");
-      OpCodes[] opCodes = stmts[stmtCount].getOpCodes();
-      for (OpCodes oc : opCodes) {
+      ByteContent[] opCodes = stmts[stmtCount].getOpCodes();
+      for (ByteContent oc : opCodes) {
         System.out.println("    " + oc);
       }
     }
@@ -788,34 +788,34 @@ public class ProgramTest {
 
     // Check NOOP in display and overflow flag addresses
     assertEquals("NOOP not set in display address", "0300",
-        stmts[122].getOpCodes()[0].getFormattedOp());
+        stmts[122].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[123].getOpCodes()[0].getFormattedOp());
+        stmts[123].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[124].getOpCodes()[0].getFormattedOp());
+        stmts[124].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[125].getOpCodes()[0].getFormattedOp());
+        stmts[125].getOpCodes()[0].getFormattedByte());
 
     // Check moved assignment past display address
     assertEquals("Missing assignment instruction after display address", 2,
         stmts[127].getOpCodes().length);
     assertEquals("Assignment to B not correct after move past display address",
         "0123",
-        stmts[127].getOpCodes()[0].getFormattedOp());
+        stmts[127].getOpCodes()[0].getFormattedByte());
     assertEquals(
         "Assignment value to B not cirrect after move past display address",
         "0010",
-        stmts[127].getOpCodes()[1].getFormattedOp());
+        stmts[127].getOpCodes()[1].getFormattedByte());
 
     assertEquals("Missing assignment instruction after display address", 2,
         stmts[128].getOpCodes().length);
     assertEquals("Assignment to X not correct after move past display address",
         "0223",
-        stmts[128].getOpCodes()[0].getFormattedOp());
+        stmts[128].getOpCodes()[0].getFormattedByte());
     assertEquals(
         "Assignment value to X not correct after move past display address",
         "0001",
-        stmts[128].getOpCodes()[1].getFormattedOp());
+        stmts[128].getOpCodes()[1].getFormattedByte());
 
   }
 
@@ -869,46 +869,46 @@ public class ProgramTest {
 
     // Check NOOP in 0177, display, and overflow addresses
     assertEquals("NOOP not set in display address", "0300",
-        stmts[122].getOpCodes()[0].getFormattedOp());
+        stmts[122].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[123].getOpCodes()[0].getFormattedOp());
+        stmts[123].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[124].getOpCodes()[0].getFormattedOp());
+        stmts[124].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[125].getOpCodes()[0].getFormattedOp());
+        stmts[125].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[126].getOpCodes()[0].getFormattedOp());
+        stmts[126].getOpCodes()[0].getFormattedByte());
 
     // Check moved assignments past display address
     assertEquals("Missing assignment instruction after display address", 2,
         stmts[128].getOpCodes().length);
     assertEquals("Assignment to A not correct after move past display address",
         "0023",
-        stmts[128].getOpCodes()[0].getFormattedOp());
+        stmts[128].getOpCodes()[0].getFormattedByte());
     assertEquals(
         "Assignment value to A not correct after move past display address",
         "0100",
-        stmts[128].getOpCodes()[1].getFormattedOp());
+        stmts[128].getOpCodes()[1].getFormattedByte());
 
     assertEquals("Missing assignment instruction after display address", 2,
         stmts[129].getOpCodes().length);
     assertEquals("Assignment to B not correct after move past display address",
         "0123",
-        stmts[129].getOpCodes()[0].getFormattedOp());
+        stmts[129].getOpCodes()[0].getFormattedByte());
     assertEquals(
         "Assignment value to B not cirrect after move past display address",
         "0010",
-        stmts[129].getOpCodes()[1].getFormattedOp());
+        stmts[129].getOpCodes()[1].getFormattedByte());
 
     assertEquals("Missing assignment instruction after display address", 2,
         stmts[130].getOpCodes().length);
     assertEquals("Assignment to X not correct after move past display address",
         "0223",
-        stmts[130].getOpCodes()[0].getFormattedOp());
+        stmts[130].getOpCodes()[0].getFormattedByte());
     assertEquals(
         "Assignment value to X not correct after move past display address",
         "0001",
-        stmts[130].getOpCodes()[1].getFormattedOp());
+        stmts[130].getOpCodes()[1].getFormattedByte());
 
   }
 
@@ -940,8 +940,8 @@ public class ProgramTest {
 
     for (int stmtCount = 116; stmtCount < stmts.length; ++stmtCount) {
       System.out.println("Statement [" + stmtCount + "] ");
-      OpCodes[] opCodes = stmts[stmtCount].getOpCodes();
-      for (OpCodes oc : opCodes) {
+      ByteContent[] opCodes = stmts[stmtCount].getOpCodes();
+      for (ByteContent oc : opCodes) {
         System.out.println(" " + oc);
       }
     }
@@ -962,26 +962,26 @@ public class ProgramTest {
 
     // Check NOOP in 0177, display, and overflow addresses
     assertEquals("NOOP not set in display address", "0300",
-        stmts[123].getOpCodes()[0].getFormattedOp());
+        stmts[123].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[124].getOpCodes()[0].getFormattedOp());
+        stmts[124].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[125].getOpCodes()[0].getFormattedOp());
+        stmts[125].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[126].getOpCodes()[0].getFormattedOp());
+        stmts[126].getOpCodes()[0].getFormattedByte());
     assertEquals("NOOP not set in display address", "0300",
-        stmts[127].getOpCodes()[0].getFormattedOp());
+        stmts[127].getOpCodes()[0].getFormattedByte());
 
     // Check moved assignments past display address
     assertEquals("Missing assignment instruction after display address", 2,
         stmts[129].getOpCodes().length);
     assertEquals("Assignment to A not correct after move past display address",
         "0023",
-        stmts[129].getOpCodes()[0].getFormattedOp());
+        stmts[129].getOpCodes()[0].getFormattedByte());
     assertEquals(
         "Assignment value to A not correct after move past display address",
         "0100",
-        stmts[129].getOpCodes()[1].getFormattedOp());
+        stmts[129].getOpCodes()[1].getFormattedByte());
 
   }
 

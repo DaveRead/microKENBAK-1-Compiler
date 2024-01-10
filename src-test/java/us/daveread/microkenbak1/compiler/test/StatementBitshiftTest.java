@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.Statement;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 public class StatementBitshiftTest {
 
@@ -13,24 +13,24 @@ public class StatementBitshiftTest {
   public void testBitshiftALeftOneA() {
     String statement = "BITSHIFT A LEFT 1";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in BITSHIFT statement", 1,
         inst.length);
     assertEquals("Incorrect first formatted operation for BITSHIFT statement",
-        "0211", inst[0].getFormattedOp());
+        "0211", inst[0].getFormattedByte());
   }
 
   @Test
   public void testBitshiftBRightThree() {
     String statement = "BITSHIFT B RIGHT 3";
     Statement stmt = new Statement(statement.split(" "));
-    OpCodes[] inst = stmt.getOpCodes();
+    ByteContent[] inst = stmt.getOpCodes();
 
     assertEquals("Incorrect number of instructions in BITSHIFT statement", 1,
         inst.length);
     assertEquals("Incorrect first formatted operation for BITSHIFT statement",
-        "0071", inst[0].getFormattedOp());
+        "0071", inst[0].getFormattedByte());
   }
 
   @Test(expected = IllegalStateException.class)

@@ -6,7 +6,7 @@ package us.daveread.microkenbak1.compiler.instruction;
  * @author readda
  *
  */
-public class OperationInstruction extends OpCodes {
+public class OperationInstruction extends ByteContent {
   /**
    * The operation code for this instruction.
    */
@@ -42,7 +42,7 @@ public class OperationInstruction extends OpCodes {
   }
 
   @Override
-  public String getFormattedOp() {
+  public String getFormattedByte() {
     return String.format("%04o", getOperationCode());
   }
 }

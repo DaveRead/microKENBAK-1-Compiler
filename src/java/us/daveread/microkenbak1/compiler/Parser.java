@@ -21,7 +21,7 @@ import java.util.List;
  * let a = 0222
  * let b = 0200
  * syscall
- * syscall
+ * bytes 0360 # directly insert a syscall instruction value
  * goto top
  * 
  * @author readda

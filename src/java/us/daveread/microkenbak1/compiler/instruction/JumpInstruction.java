@@ -7,7 +7,7 @@ package us.daveread.microkenbak1.compiler.instruction;
  * @author readda
  *
  */
-public class JumpInstruction extends OpCodes {
+public class JumpInstruction extends ByteContent {
   /**
    * The type of jump (e.g., based on value in variable or unconditional).
    */
@@ -102,7 +102,7 @@ public class JumpInstruction extends OpCodes {
   }
 
   @Override
-  public String getFormattedOp() {
+  public String getFormattedByte() {
     return getType().getFormattedOp() + "\n"
         + String.format("%04o", getDestinationAddress());
     //    + "        : " + String.format("%04o", getDestinationAddress());

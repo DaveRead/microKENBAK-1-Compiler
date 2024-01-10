@@ -6,16 +6,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import us.daveread.microkenbak1.compiler.instruction.Label;
-import us.daveread.microkenbak1.compiler.instruction.OpCodes;
+import us.daveread.microkenbak1.compiler.instruction.ByteContent;
 
 /**
- * Unit tests for the OpCodes class.
+ * Unit tests for the ByteContent class.
  * 
  * @author readda
  *
  */
-public class OpCodesTest {
-  private OpCodes testInstruction;
+public class ByteContentTest {
+  private ByteContent testInstruction;
 
   /**
    * Create a default instruction.
@@ -39,7 +39,7 @@ public class OpCodesTest {
    */
   @Test
   public void testSetMemoryLocation() {
-    testInstruction.setMemoryLocation(010);
+    testInstruction.setLocation(010);
     assertEquals("Incorrect default memory location", 8,
         testInstruction.getMemoryLocation());
   }
