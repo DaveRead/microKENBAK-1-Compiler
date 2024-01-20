@@ -1,0 +1,200 @@
+# Program to play Dr. Nim
+# https://en.wikipedia.org/wiki/Dr._Nim
+
+# Starts with 15 marbles so first player can win
+
+# Design
+# The number of remaining marbles is stored in memory location 0376 
+# The number of remaining marbles is shown using 4 left-most data LEDs (binary 0-15)
+# The two right-most data LEDs (and corresponding buttons) are used to take marbles (1-3/turn)
+# The INPUT LED is lit when it is the player's turn
+# The MEMORY LED is lit when it is the computer's turn (right-most data LEDs show how many taken)
+
+# After starting the program. 
+# 1. The 4 left-most LEDs will display the starting number of marbles (15)
+# 2. The INPUT LED will light (indicating player's turn)
+# 3. Enter 1, 2 or 3 (non-zero) using the right-most two data inputs to choose the number of marbles to take
+# 4. Press Start to take the marbles
+# 5. The 4 left-most LEDS will display the remaining number of marbles
+# 6a. If the player took the last marble (winner):
+# 6a1. The INPUT and ADDRESS LEDs will be lit - indicating the player won
+# 6a2. All the LEDs will flash several times 
+# 6a3. Press Start to begin a new game (return to step 1)
+# 6b. If marbles remain, play moves onto step 7
+# 7. The MEMORY LED will be list to indicate it is the computer's turn
+# 8. The 2 right-most data LEDS will display the number of marbles the computer took
+# 9. The 4 left-most LEDS will display the remaining number of marbles
+# 10a. If the computer took the last marble (winner):
+# 10a1. The MEMORY and ADDRESS LEDs will be lit - indicating the computer won
+# 10a2. All the LEDs will flash several times
+# 10a3. Press Start to begin a new game (return to step 1)
+# 10b. If marbles remain, press start and play returns to step 2 (player's turn)
+
+# NOTE: if the player chooses an illegal number of marbles it will default to 1
+
+label new_game
+
+# 1. Set initial number of marbles in memory and display
+let b = 15
+memcopy b to 0376
+
+# Display shows the number in left-most LEDs (e.g. shifted left 4)
+BITSHIFT b left 4
+memcopy b to display
+
+# 2. The INPUT LED will light (indicating player's turn)
+label player_turn
+
+# clear input
+let b = 0
+memcopy b to input
+
+# Clear LSBs on display (leave number of marbles in MSBs visible)
+let a = valuein display
+and 0360
+memcopy a to display
+
+# Light the INPUT LED
+let a = 0220
+let b = 1
+syscall
+
+# 3. Enter 1, 2 or 3 (non-zero) using the right-most two data inputs to choose the number of marbles to take
+# 4. Press Start to take the marbles
+# Stop for input
+halt
+
+# Place input into A
+let a = valuein input
+
+# Force value in range 1-3
+and 3
+
+if a notzero goto input_okay
+
+# Illegal input value, force to 1
+let a = 1
+
+label input_okay
+
+# 5. The 4 left-most LEDS will display the remaining number of marbles
+
+# Place number of marbles in B
+let b = valuein 0376
+
+# subtract number taken
+subtract a from b
+
+# Store the remaining number of marbles 
+memcopy b to 0376
+
+# display num remaining
+bitshift b left 4
+memcopy b to display
+
+# 6a. If the player took the last marble (winner):
+
+# if 0 remain, player won
+if b iszero goto player_won
+
+# 6b. If marbles remain, play moves onto step 7
+# 7. The MEMORY LED will be list to indicate it is the computer's turn
+
+# Light the MEMORY LED
+let a = 0220
+let b = 4
+syscall
+
+# calculate number of marbles to take
+
+# place number of marbles in a and b
+let a = valuein 0376
+let b = valuein a
+
+# can remaining be reduced to multiple of four?
+# See if non-zero in two lowest bits in a
+and 3
+
+# Default to taking one
+let x = 1
+
+if a iszero goto skipcalc
+
+# Take the number that reaches a multiple of four
+let x = valuein a
+
+label skipcalc
+
+# Take the marbles
+subtract x from b
+
+# Save number remaining in a
+let a = valuein b
+
+# Store the remaining number of marbles 
+memcopy b to 0376
+
+# 8. The 2 right-most data LEDS will display the number of marbles the computer took
+# 9. The 4 left-most LEDS will display the remaining number of marbles
+
+# Display the remaining marbles and number taken
+bitshift b left 4
+add x to b
+memcopy b to display
+
+# 10a. If the computer took the last marble (winner):
+if a iszero goto computer_won
+
+# 10b. If marbles remain, press start and play returns to step 2 (player's turn)
+halt
+goto player_turn
+
+
+# 6a. If the player took the last marble (winner):
+label player_won
+
+# 6a1. The INPUT and ADDRESS LEDs will be lit - indicating the player won
+let a = 0220
+let b = 3
+syscall
+
+# 6a2. All the LEDs will flash several times 
+goto end_game_flashall
+
+# 10a. If the computer took the last marble (winner):
+label computer_won
+
+# 10a1. The MEMORY and ADDRESS LEDs will be lit - indicating the computer won
+let a = 0220
+let b = 6
+syscall
+
+# 10a2. All the LEDs will flash several times
+label end_game_flashall
+
+let a = 0222
+let x = 8
+
+label winner_flash
+
+let b = 0377
+memcopy b to display
+
+# Delay 0200 ms
+let b = 0200
+syscall
+
+let b = 0
+memcopy b to display
+
+# Delay 0200 ms
+let b = 0200
+syscall
+
+subtract 1 from x
+if x notzero goto winner_flash
+
+# 6a3. Press Start to begin a new game (return to step 1)
+# 10a3. Press Start to begin a new game (return to step 1)
+halt
+goto new_game 
