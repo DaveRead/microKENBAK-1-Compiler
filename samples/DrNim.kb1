@@ -3,30 +3,30 @@
 
 # Starts with 15 marbles so first player can win
 
-# Design
+# Design:
 # The number of remaining marbles is stored in memory location 0376 
 # The number of remaining marbles is shown using 4 left-most data LEDs (binary 0-15)
-# The two right-most data LEDs (and corresponding buttons) are used to take marbles (1-3/turn)
+# The two right-most data buttons are used to take marbles (1-3/turn)
 # The INPUT LED is lit when it is the player's turn
 # The MEMORY LED is lit when it is the computer's turn (right-most data LEDs show how many taken)
 
-# After starting the program. 
-# 1. The 4 left-most LEDs will display the starting number of marbles (15)
+# After starting the program:
+# 1. The 4 left-most data LEDs will display the starting number of marbles (15)
 # 2. The INPUT LED will light (indicating player's turn)
-# 3. Enter 1, 2 or 3 using the right-most two data inputs to choose the number of marbles to take
+# 3. Enter 1, 2 or 3 using the two right-most data inputs to choose the number of marbles to take
 # 4. Press Start to take the marbles
-# 5. The 4 left-most LEDS will display the remaining number of marbles
+# 5. The 4 left-most data LEDS will display the remaining number of marbles
 # 6a. If the player took the last marble (winner):
 # 6a1. The INPUT and ADDRESS LEDs will be lit - indicating the player won
-# 6a2. All the LEDs will flash several times 
+# 6a2. All the data LEDs will flash several times 
 # 6a3. Press Start to begin a new game (return to step 1)
 # 6b. If marbles remain, play moves onto step 7
-# 7. The MEMORY LED will be list to indicate it is the computer's turn
+# 7. The MEMORY LED will be lit to indicate it is the computer's turn
 # 8. The 2 right-most data LEDS will display the number of marbles the computer took
-# 9. The 4 left-most LEDS will display the remaining number of marbles
+# 9. The 4 left-most data LEDS will display the remaining number of marbles
 # 10a. If the computer took the last marble (winner):
 # 10a1. The MEMORY and ADDRESS LEDs will be lit - indicating the computer won
-# 10a2. All the LEDs will flash several times
+# 10a2. All the data LEDs will flash several times
 # 10a3. Press Start to begin a new game (return to step 1)
 # 10b. If marbles remain, press start and play returns to step 2 (player's turn)
 
@@ -38,7 +38,7 @@ label new_game
 let b = 15
 memcopy b to 0376
 
-# Display shows the number in left-most LEDs (e.g. shifted left 4)
+# Display shows the number in left-most data LEDs (e.g. shifted left 4)
 bitshift b left 4
 memcopy b to display
 
@@ -49,7 +49,7 @@ label player_turn
 let b = 0
 memcopy b to input
 
-# Clear LSBs on display (leave number of marbles in MSBs visible)
+# Clear data LSBs on display (leave number of marbles in MSBs visible)
 let a = valuein display
 and 0360
 memcopy a to display
@@ -59,7 +59,7 @@ let a = 0220
 let b = 1
 syscall
 
-# 3. Enter 1, 2 or 3 using the right-most two data inputs to choose the number of marbles to take
+# 3. Enter 1, 2 or 3 using the two right-most data inputs to choose the number of marbles to take
 # 4. Press Start to take the marbles
 # Stop for input
 halt
@@ -77,7 +77,7 @@ let a = 1
 
 label input_okay
 
-# 5. The 4 left-most LEDS will display the remaining number of marbles
+# 5. The 4 left-most data LEDS will display the remaining number of marbles
 
 # Place number of marbles in B
 let b = valuein 0376
@@ -98,6 +98,7 @@ memcopy b to display
 if b iszero goto player_won
 
 # 6b. If marbles remain, play moves onto step 7
+
 # 7. The MEMORY LED will be list to indicate it is the computer's turn
 
 # Light the MEMORY LED
@@ -111,11 +112,12 @@ syscall
 let a = valuein 0376
 let b = valuein a
 
-# can remaining be reduced to multiple of four?
+# can remaining number be reduced to a multiple of four?
 # See if non-zero in two lowest bits in a
 and 3
 
 # Default to taking one
+# TODO have default be a random value from 1 to 3
 let x = 1
 
 if a iszero goto skipcalc
@@ -135,7 +137,7 @@ let a = valuein b
 memcopy b to 0376
 
 # 8. The 2 right-most data LEDS will display the number of marbles the computer took
-# 9. The 4 left-most LEDS will display the remaining number of marbles
+# 9. The 4 left-most data LEDS will display the remaining number of marbles
 
 # Display the remaining marbles and number taken
 bitshift b left 4
@@ -158,7 +160,7 @@ let a = 0220
 let b = 3
 syscall
 
-# 6a2. All the LEDs will flash several times 
+# 6a2. All the data LEDs will flash several times 
 goto end_game_flashall
 
 # 10a. If the computer took the last marble (winner):
@@ -169,7 +171,7 @@ let a = 0220
 let b = 6
 syscall
 
-# 10a2. All the LEDs will flash several times
+# 10a2. All the data LEDs will flash several times
 label end_game_flashall
 
 let a = 0222
