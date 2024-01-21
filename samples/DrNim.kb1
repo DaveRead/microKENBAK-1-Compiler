@@ -13,7 +13,7 @@
 # After starting the program. 
 # 1. The 4 left-most LEDs will display the starting number of marbles (15)
 # 2. The INPUT LED will light (indicating player's turn)
-# 3. Enter 1, 2 or 3 (non-zero) using the right-most two data inputs to choose the number of marbles to take
+# 3. Enter 1, 2 or 3 using the right-most two data inputs to choose the number of marbles to take
 # 4. Press Start to take the marbles
 # 5. The 4 left-most LEDS will display the remaining number of marbles
 # 6a. If the player took the last marble (winner):
@@ -59,7 +59,7 @@ let a = 0220
 let b = 1
 syscall
 
-# 3. Enter 1, 2 or 3 (non-zero) using the right-most two data inputs to choose the number of marbles to take
+# 3. Enter 1, 2 or 3 using the right-most two data inputs to choose the number of marbles to take
 # 4. Press Start to take the marbles
 # Stop for input
 halt
