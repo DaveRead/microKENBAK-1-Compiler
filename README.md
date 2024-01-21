@@ -1,10 +1,10 @@
-#microKENBAK-1 Compiler
+# microKENBAK-1 Compiler
 Compiles a small language, **KBlang**, defined to simplify the programming of the microKENBAK-1 computer.
 
 ![Front of microKENBAK-1 with several LEDs lit](microKENBAK-1.dsr.crop.small.jpg "Front of microKENBAK-1")
 
-##Using the Compiler
-###Command line arguments
+## Using the Compiler
+### Command line arguments
 The compiler requires the source file name to be supplied as the first argument on the command line. If that is the only argument, the generated machine code is written to the file **CompiledResult.ops**
 
 An optional second argument can serve one of two purposes:
@@ -13,7 +13,7 @@ An optional second argument can serve one of two purposes:
 
 2. Otherwise, the second argument is taken as the name of the file to write the machine code to.
 
-###Build and Run Using a Shell Script
+### Build and Run Using a Shell Script
 Shell scripts are provided to build and run the compiler. These work on a Linux system with the Java Development Kit and BASH installed.
 
 To build the compiler use this command: `./make-compiler.sh`
@@ -34,7 +34,7 @@ For example: `kb1-compile samples/DrNim.kb1 --ASHTML`
 
 The HTML file is written to the location of the source file and named with a **.html** suffix. In the above example, the output file would be `DrNim.kb1.html`
 
-###Using Ant
+### Using Ant
 If you have Ant installed (https://ant.apache.org/) you can use the following command to compile a program:
 
 `ant -Dinput=path_to_source run`
@@ -55,17 +55,17 @@ To write the compiled machine instructions to a specific file, use the output di
 
 `ant -Dinput=samples/Cylon.kb1 -Doutput=cylon.txt run` 
 
-####Running the Unit Tests
+#### Running the Unit Tests
 A test suite is defined for the compiler, it is run using the command:
 
 `ant test`
 
 Both unit test and code coverage results are produced in the `generated` directory.
 
-###Using Your IDE
+### Using Your IDE
 Ensure the **src/config** and **src/java** directories are set as the source path and that the **lib** amd **test-lib** directories are on the classpath. Define the command line to include the path to the source file to compile as the first argument on the command line. The class to run is **us.daveread.microkenbak1.compiler.Compiler** 
 
-##Language Design
+## Language Design
 KBlang is tightly tied to the microKENBAK-1's machine codes. Here is an example program, found as **samples/CountUp.kb1**,  to have the LEDs continuously display counting values from 0 to 255 with a 255 ms delay between updates of the LEDs:
 
 ---
