@@ -39,7 +39,7 @@ let b = 15
 memcopy b to 0376
 
 # Display shows the number in left-most LEDs (e.g. shifted left 4)
-BITSHIFT b left 4
+bitshift b left 4
 memcopy b to display
 
 # 2. The INPUT LED will light (indicating player's turn)
