@@ -41,13 +41,13 @@ If you have Ant installed (https://ant.apache.org/) you can use the following co
 
 For example, to compile the DrNim program:
 
-`ant -Dinput=samples/DrNim.kb1 run'
+`ant -Dinput=samples/DrNim.kb1 run`
 
 The machine instructions are written to **CompiledResult.ops** which is suitable for serial upload into the microKENBAK-1
 
 To write the HTML representation of the Calculator program, this would be the Ant command:
 
-`ant -Dinput=samples/Calculator.kb1 runHtml
+`ant -Dinput=samples/Calculator.kb1 runHtml`
 
 The resulting web page would be in **samples/Calculator.html**
 
@@ -63,7 +63,7 @@ A test suite is defined for the compiler, it is run using the command:
 Both unit test and code coverage results are produced in the `generated` directory.
 
 ### Using Your IDE
-Ensure the **src/config** and **src/java** directories are set as the source path and that the **lib** and **test-lib** directories are on the classpath. Define the command line to include the path to the source file to compile as the first argument on the command line. The class to run is **us.daveread.microkenbak1.compiler.Compiler** 
+Ensure the **src/config** and **src/java** directories are set as the source path and that the **lib** and **test-lib** directories are on the classpath. Define the command line to include the path to the source file to compile as the first argument on the command line. The class to run is **us.daveread.microkenbak1.compiler.Compiler**
 
 ## Language Design
 KBlang is tightly tied to the microKENBAK-1's machine codes. Here is an example program, found as **samples/CountUp.kb1**,  to have the LEDs continuously display counting values from 0 to 255 with a 255 ms delay between updates of the LEDs:
