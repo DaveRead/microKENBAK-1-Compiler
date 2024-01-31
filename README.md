@@ -22,7 +22,7 @@ To run the compiler use this command: `./kb1-compile *source_code_file*`
 
 For example: `./kb1-compile samples/CountUpandDown.kb1`
 
-The resulting machine instructions will be printed on the screen. 
+The resulting machine instructions will be printed on the screen.
 
 To write the machine code to a file, provide the output file name as a second argument: `./kb1-compile *source_code_file* *output_file*`
 
@@ -53,7 +53,7 @@ The resulting web page would be in **samples/Calculator.html**
 
 To write the compiled machine instructions to a specific file, use the output directive. For example, to compile the Cylon program and write the instructions to the file cylon.txt, this would be the Ant command:
 
-`ant -Dinput=samples/Cylon.kb1 -Doutput=cylon.txt run` 
+`ant -Dinput=samples/Cylon.kb1 -Doutput=cylon.txt run`
 
 #### Running the Unit Tests
 A test suite is defined for the compiler, it is run using the command:
@@ -63,7 +63,7 @@ A test suite is defined for the compiler, it is run using the command:
 Both unit test and code coverage results are produced in the `generated` directory.
 
 ### Using Your IDE
-Ensure the **src/config** and **src/java** directories are set as the source path and that the **lib** amd **test-lib** directories are on the classpath. Define the command line to include the path to the source file to compile as the first argument on the command line. The class to run is **us.daveread.microkenbak1.compiler.Compiler** 
+Ensure the **src/config** and **src/java** directories are set as the source path and that the **lib** and **test-lib** directories are on the classpath. Define the command line to include the path to the source file to compile as the first argument on the command line. The class to run is **us.daveread.microkenbak1.compiler.Compiler** 
 
 ## Language Design
 KBlang is tightly tied to the microKENBAK-1's machine codes. Here is an example program, found as **samples/CountUp.kb1**,  to have the LEDs continuously display counting values from 0 to 255 with a 255 ms delay between updates of the LEDs:
@@ -78,7 +78,7 @@ KBlang is tightly tied to the microKENBAK-1's machine codes. Here is an example 
 	# Initialize X
 	let x = 0
 
-	# Top of loop to display counting on LEDs 
+	# Top of loop to display counting on LEDs
 	label top
 	add 1 to x
 	memcopy x to display
@@ -86,7 +86,7 @@ KBlang is tightly tied to the microKENBAK-1's machine codes. Here is an example 
 	goto top
 ---
 
-The language description is found in **[documentation/LanguageSpecification.md](documentation/LanguageSpecification.md)** 
+The language description is found in **[documentation/LanguageSpecification.md](documentation/LanguageSpecification.md)**
 
 Example programs are found in the **samples** directory and **[videos of several sample programs running](https://www.youtube.com/playlist?list=PL6TXVZYCjsKYymB6kaxiJsRQTL8TwtUdY)** are on YouTube.
 
